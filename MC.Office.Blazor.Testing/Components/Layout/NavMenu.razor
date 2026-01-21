@@ -1,0 +1,415 @@
+﻿@inject NavigationManager NavigationManager
+@implements IDisposable
+
+<div class="navigation-menu">
+    @* Search Box *@
+    <div class="menu-search">
+        <DxTextBox @bind-Text="@SearchText"
+                   Placeholder="Find demo by keyword"
+                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
+        </DxTextBox>
+    </div>
+
+    @* Menu Tree *@
+    <DxTreeView Data="@FilteredMenuItems"
+                CssClass="menu-treeview"
+                UrlMatchMode="NavigationUrlMatchMode.Exact"
+                AllowSelectNodes="true"
+                NodeExpandCollapseAction="TreeViewNodeExpandCollapseAction.NodeClick"
+                ShowExpandButtons="true"
+                AnimationType="LayoutAnimationType.Slide">
+
+        <DataMappings>
+            <DxTreeViewDataMapping Key="Id"
+                                   Text="Text"
+                                   ParentKey="ParentId"
+                                   IconCssClass="IconCssClass"
+                                   NavigateUrl="NavigateUrl"
+                                   HasChildren="HasChildren" />
+        </DataMappings>
+
+        <NodeTemplate>
+            @{
+                var item = (MenuItem)context.DataItem;
+                var isExpanded = context.Expanded; // เพิ่มบรรทัดนี้
+
+                if (item.IsGroupHeader)
+                {
+                    <div class="menu-group-header">
+                        @if (item.HasChildren)
+                        {
+                            // เพิ่มคลาส expanded เมื่อ node ถูก expand
+                            <i class="expand-icon fa-solid fa-chevron-right @(isExpanded ? "expanded" : "")"></i>
+                        }
+                        <span>@item.Text</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="menu-node-content" @onclick="@(() => NavigateToUrl(item.NavigateUrl))">
+                        @if (!string.IsNullOrEmpty(item.IconCssClass))
+                        {
+                            <i class="@item.IconCssClass menu-icon"></i>
+                        }
+                        <span class="menu-text">@item.Text</span>
+                        @if (item.IsNew)
+                        {
+                            <span class="menu-new-label">New</span>
+                        }
+                        @if (item.HasBadge)
+                        {
+                            <span class="menu-badge"></span>
+                        }
+                    </div>
+                }
+            }
+        </NodeTemplate>
+    </DxTreeView>
+
+    @* Version Info *@
+    @* <div class="menu-version">
+        <div>Version: 25.2.3</div>
+        <div>Copyright © 2000-2026 Developer Express Inc</div>
+    </div> *@
+</div>
+
+<style>
+    /* Navigation Menu Container */
+    .navigation-menu {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 16px 0;
+    }
+
+    /* Search Box */
+    .menu-search {
+        padding: 0 16px 16px 16px;
+    }
+
+        .menu-search .dx-icon-search {
+            opacity: 0.5;
+        }
+
+    /* Menu Node Content */
+    .menu-node-content {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        color: white;
+    }
+
+        .menu-node-content:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            transform: translateX(2px);
+        }
+
+    .menu-icon {
+        width: 20px;
+        height: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.7;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .menu-node-content:hover .menu-icon {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    .menu-text {
+        flex: 1;
+        font-size: 14px;
+    }
+
+    .menu-new-label {
+        display: inline-block;
+        background-color: #2196f3;
+        color: white;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 10px;
+        text-transform: uppercase;
+        transition: all 0.25s ease;
+    }
+
+    .menu-badge {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #4caf50;
+        transition: all 0.25s ease;
+    }
+
+    /* Group Headers */
+    .menu-group-header {
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        color: white;
+        padding: 16px 16px 8px 16px;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+        .menu-group-header:hover {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+    /* Expand Icon Animation */
+    .expand-icon {
+        font-size: 10px;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+    }
+
+        .expand-icon.expanded {
+            transform: rotate(90deg);
+        }
+
+    /* Selected State */
+    .menu-treeview .dxbl-treeview-node-selected .menu-node-content {
+        background-color: #1976d2;
+        color: white;
+    }
+
+        .menu-treeview .dxbl-treeview-node-selected .menu-node-content:hover {
+            background-color: #1565c0;
+        }
+
+    .menu-treeview .dxbl-treeview-node-selected .menu-icon {
+        opacity: 1;
+    }
+
+    .menu-treeview .dxbl-treeview-node-selected .menu-new-label {
+        background-color: white;
+        color: #1976d2;
+    }
+
+    .menu-treeview .dxbl-treeview-node-selected .menu-badge {
+        background-color: white;
+    }
+
+    /* TreeView Base Styles */
+    .menu-treeview {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: transparent;
+    }
+
+        .menu-treeview .dxbl-treeview-node {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Smooth Slide Animation for Children */
+        .menu-treeview .dxbl-treeview-node-children {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transform: scaleY(0);
+            transform-origin: top;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-treeview .dxbl-treeview-node-expanded > .dxbl-treeview-node-children {
+            max-height: 2000px;
+            opacity: 1;
+            transform: scaleY(1);
+        }
+
+            /* Staggered Fade In for Child Items */
+            .menu-treeview .dxbl-treeview-node-expanded > .dxbl-treeview-node-children > .dxbl-treeview-node {
+                animation: slideInFade 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+                opacity: 0;
+            }
+
+                .menu-treeview .dxbl-treeview-node-expanded > .dxbl-treeview-node-children > .dxbl-treeview-node:nth-child(1) {
+                    animation-delay: 0.05s;
+                }
+
+                .menu-treeview .dxbl-treeview-node-expanded > .dxbl-treeview-node-children > .dxbl-treeview-node:nth-child(2) {
+                    animation-delay: 0.08s;
+                }
+
+                .menu-treeview .dxbl-treeview-node-expanded > .dxbl-treeview-node-children > .dxbl-treeview-node:nth-child(3) {
+                    animation-delay: 0.11s;
+                }
+
+                .menu-treeview .dxbl-treeview-node-expanded > .dxbl-treeview-node-children > .dxbl-treeview-node:nth-child(4) {
+                    animation-delay: 0.14s;
+                }
+
+                .menu-treeview .dxbl-treeview-node-expanded > .dxbl-treeview-node-children > .dxbl-treeview-node:nth-child(5) {
+                    animation-delay: 0.17s;
+                }
+
+                .menu-treeview .dxbl-treeview-node-expanded > .dxbl-treeview-node-children > .dxbl-treeview-node:nth-child(n+6) {
+                    animation-delay: 0.2s;
+                }
+
+    @@keyframes slideInFade {
+        from {
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Child nodes indentation */
+    .menu-treeview [data-level="1"] .menu-node-content {
+        padding-left: 32px;
+    }
+
+    .menu-treeview [data-level="2"] .menu-node-content {
+        padding-left: 48px;
+    }
+
+    /* Version Info */
+    .menu-version {
+        padding: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.6;
+    }
+
+    /* Scrollbar */
+    .menu-treeview::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .menu-treeview::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .menu-treeview::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+        transition: background 0.2s ease;
+    }
+
+        .menu-treeview::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+</style>
+
+@code {
+    private MenuItem? SelectedItem;
+    private string? currentLocalPath;
+    private string SearchText = "";
+    private List<MenuItem> MenuItems = new();
+    private IEnumerable<object>? ExpandedItems; // เพิ่มบรรทัดนี้
+
+    private List<MenuItem> FilteredMenuItems =>
+        string.IsNullOrWhiteSpace(SearchText)
+            ? MenuItems
+            : MenuItems.Where(m =>
+                m.Text.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                (m.IsGroupHeader && MenuItems.Any(child =>
+                    child.ParentId == m.Id &&
+                    child.Text.Contains(SearchText, StringComparison.OrdinalIgnoreCase)))
+            ).ToList();
+
+    protected override void OnInitialized()
+    {
+        InitializeMenuItems();
+        UpdateSelectedItem();
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void InitializeMenuItems()
+    {
+        MenuItems = new List<MenuItem>
+        {
+            // Main items
+            new MenuItem { Id = "home", Text = "Home", NavigateUrl = "/", IconCssClass = "dx-icon-home" },
+            new MenuItem { Id = "counter", Text = "Counter", NavigateUrl = "/counter", IconCssClass = "dx-icon-refresh" },
+            new MenuItem { Id = "weather", Text = "Weather", NavigateUrl = "/weather", IconCssClass = "dx-icon-cloud" },
+
+            // AI-powered Extensions
+            new MenuItem { Id = "ai-group", Text = "AI-powered Extensions", IsGroupHeader = true, HasChildren = true },
+            new MenuItem { Id = "ai-chat", ParentId = "ai-group", Text = "AI Chat", NavigateUrl = "/ai-chat", IconCssClass = "fa-solid fa-comments", HasBadge = true },
+            new MenuItem { Id = "rich-editor", ParentId = "ai-group", Text = "Rich Text Editor", NavigateUrl = "/rich-editor", IconCssClass = "fa-solid fa-file-pen" },
+            new MenuItem { Id = "html-editor", ParentId = "ai-group", Text = "HTML Editor", NavigateUrl = "/html-editor", IconCssClass = "fa-solid fa-code" },
+            new MenuItem { Id = "memo", ParentId = "ai-group", Text = "Memo", NavigateUrl = "/memo", IconCssClass = "fa-solid fa-note-sticky", IsNew = true },
+            new MenuItem { Id = "grid-ai", ParentId = "ai-group", Text = "Grid", NavigateUrl = "/grid-ai", IconCssClass = "fa-solid fa-table" },
+            new MenuItem { Id = "reports", ParentId = "ai-group", Text = "Reports", NavigateUrl = "/reports", IconCssClass = "fa-solid fa-chart-line" },
+
+            // Data Management
+            new MenuItem { Id = "data-mgmt", Text = "Data Management", IsGroupHeader = true, HasChildren = true },
+            new MenuItem { Id = "grid-data", ParentId = "data-mgmt", Text = "Grid", NavigateUrl = "/grid", IconCssClass = "fa-solid fa-table-cells", HasBadge = true },
+            new MenuItem { Id = "treelist", ParentId = "data-mgmt", Text = "TreeList", NavigateUrl = "/treelist", IconCssClass = "fa-solid fa-sitemap", HasBadge = true },
+            new MenuItem { Id = "filter-builder", ParentId = "data-mgmt", Text = "Filter Builder", NavigateUrl = "/filter", IconCssClass = "fa-solid fa-filter", HasBadge = true },
+
+            // Data Editors
+            new MenuItem { Id = "data-editors", Text = "Data Editors", IsGroupHeader = true, HasChildren = true },
+            new MenuItem { Id = "overview", ParentId = "data-editors", Text = "Overview", NavigateUrl = "/overview", IconCssClass = "fa-solid fa-circle-info" },
+            new MenuItem { Id = "common-concepts", ParentId = "data-editors", Text = "Common Concepts", NavigateUrl = "/concepts", IconCssClass = "fa-solid fa-lightbulb" },
+            new MenuItem { Id = "calendar", ParentId = "data-editors", Text = "Calendar", NavigateUrl = "/calendar", IconCssClass = "fa-solid fa-calendar" },
+            new MenuItem { Id = "checkbox", ParentId = "data-editors", Text = "CheckBox", NavigateUrl = "/checkbox", IconCssClass = "fa-solid fa-square-check" },
+            new MenuItem { Id = "color-palette", ParentId = "data-editors", Text = "Color Palette", NavigateUrl = "/colors", IconCssClass = "fa-solid fa-palette" },
+            new MenuItem { Id = "combobox", ParentId = "data-editors", Text = "ComboBox", NavigateUrl = "/combobox", IconCssClass = "fa-solid fa-list" },
+            new MenuItem { Id = "date-edit", ParentId = "data-editors", Text = "Date Edit", NavigateUrl = "/date", IconCssClass = "fa-solid fa-calendar-days" },
+            new MenuItem { Id = "date-range", ParentId = "data-editors", Text = "Date Range Picker", NavigateUrl = "/daterange", IconCssClass = "fa-solid fa-calendar-week" },
+            new MenuItem { Id = "dropdown", ParentId = "data-editors", Text = "DropDown Box", NavigateUrl = "/dropdown", IconCssClass = "fa-solid fa-caret-down" }
+        };
+    }
+
+    private void UpdateSelectedItem()
+    {
+        currentLocalPath = new Uri(NavigationManager.Uri).LocalPath;
+        SelectedItem = MenuItems.FirstOrDefault(m =>
+            !string.IsNullOrEmpty(m.NavigateUrl) &&
+            string.Equals(m.NavigateUrl, currentLocalPath, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        UpdateSelectedItem();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void NavigateToUrl(string? url)
+    {
+        if (!string.IsNullOrEmpty(url))
+        {
+            NavigationManager.NavigateTo(url);
+        }
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+
+    public class MenuItem
+    {
+        public string Id { get; set; } = "";
+        public string? ParentId { get; set; }
+        public string Text { get; set; } = "";
+        public string? NavigateUrl { get; set; }
+        public string? IconCssClass { get; set; }
+        public bool IsGroupHeader { get; set; }
+        public bool IsNew { get; set; }
+        public bool HasBadge { get; set; }
+        public bool HasChildren { get; set; }
+    }
+}
