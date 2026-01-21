@@ -4,7 +4,7 @@
     <DxDrawer PanelWidth="@PanelWidth"
               CssClass="@(CssClass + " mobile")"
               Mode="DrawerMode.Overlap"
-              IsOpen="@ToggledDrawer"
+              IsOpen="@Toggled"
               BodyTemplate="BodyTemplate"
               HeaderTemplate="HeaderTemplate"
               FooterTemplate="FooterTemplate"
@@ -14,7 +14,7 @@
             <DxDrawer PanelWidth="@PanelWidth"
                       CssClass="@CssClass"
                       Mode="DrawerMode.Shrink"
-                      IsOpen="@(!ToggledDrawer)"
+                      IsOpen="@(!Toggled)"
                       BodyTemplate="BodyTemplate"
                       HeaderTemplate="HeaderTemplate"
                       FooterTemplate="FooterTemplate"
@@ -35,4 +35,6 @@
     [Parameter] public RenderFragment? BodyTemplate { get; set; }
     [Parameter] public RenderFragment? HeaderTemplate { get; set; }
     [Parameter] public RenderFragment? FooterTemplate { get; set; }
+
+    [Parameter] public bool Toggled { get; set; }
 }

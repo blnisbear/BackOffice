@@ -12,6 +12,8 @@ builder.Services.AddDevExpressBlazor(options =>
 });
 builder.Services.AddMvc();
 
+builder.Services.AddScoped<ThemeService>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

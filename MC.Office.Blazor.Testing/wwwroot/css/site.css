@@ -1,4 +1,4 @@
-@import url('./icons.css');
+﻿@import url('./icons.css');
 
 html, body {
     display: flex;
@@ -76,4 +76,199 @@ html, body {
     height: 100%;
     justify-content: center;
     width: 100%;
+}
+
+/*New Css From Demo*/
+#app,
+.demo-header-container,
+.demo-content-container,
+.demo-content-container > .demo-content,
+.demo-content > div:not(.modal-backdrop) {
+    background-color: var(--bs-body-bg);
+}
+
+#app {
+    position: relative;
+}
+
+    #app.root {
+        min-width: 375px;
+    }
+
+/* Header */
+
+.demo-header-container {
+    position: sticky;
+    top: 0;
+    z-index: 1031;
+}
+
+.demo-header-container:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 3.5rem;
+    box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.12);
+    z-index: 1030;
+    pointer-events: none;
+}
+
+.demo-header.navbar {
+    display: flex; /* ⭐ สำคัญที่สุด */
+    align-items: center; /* ให้ทุกอย่างอยู่กึ่งกลางแนวตั้ง */
+    margin: 0 auto;
+    max-width: 1920px;
+    position: relative;
+    height: 3.5rem;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    border: none;
+    background-color: inherit;
+    border-radius: 0;
+    box-shadow: none;
+    z-index: 1029;
+}
+
+    .demo-header.navbar .navbar-toggler {
+        background-color: transparent;
+        outline: none;
+        box-shadow: none;
+        padding: 0.5rem;
+        margin: .5rem .5rem .5rem .625rem;
+        border-radius: 50%;
+    }
+
+        .demo-header.navbar .navbar-toggler .navbar-toggler-icon {
+            mask-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4.5C0 3.67157 0.671573 3 1.5 3H22.5C23.3284 3 24 3.67157 24 4.5C24 5.32843 23.3284 6 22.5 6H1.5C0.671573 6 0 5.32843 0 4.5Z' fill='currentColor' fill-opacity='0.54'/%3E%3Cpath d='M0 12.5C0 11.6716 0.671573 11 1.5 11H22.5C23.3284 11 24 11.6716 24 12.5C24 13.3284 23.3284 14 22.5 14H1.5C0.671573 14 0 13.3284 0 12.5Z' fill='black' fill-opacity='0.54'/%3E%3Cpath d='M24 20.5C24 19.6716 23.3284 19 22.5 19H1.5C0.671573 19 0 19.6716 0 20.5C0 21.3284 0.671573 22 1.5 22H22.5C23.3284 22 24 21.3284 24 20.5Z' fill='currentColor' fill-opacity='0.54'/%3E%3C/svg%3E%0A");
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4.5C0 3.67157 0.671573 3 1.5 3H22.5C23.3284 3 24 3.67157 24 4.5C24 5.32843 23.3284 6 22.5 6H1.5C0.671573 6 0 5.32843 0 4.5Z' fill='currentColor' fill-opacity='0.54'/%3E%3Cpath d='M0 12.5C0 11.6716 0.671573 11 1.5 11H22.5C23.3284 11 24 11.6716 24 12.5C24 13.3284 23.3284 14 22.5 14H1.5C0.671573 14 0 13.3284 0 12.5Z' fill='black' fill-opacity='0.54'/%3E%3Cpath d='M24 20.5C24 19.6716 23.3284 19 22.5 19H1.5C0.671573 19 0 19.6716 0 20.5C0 21.3284 0.671573 22 1.5 22H22.5C23.3284 22 24 21.3284 24 20.5Z' fill='currentColor' fill-opacity='0.54'/%3E%3C/svg%3E%0A");
+            background-color: var(--bs-body-color) !important;
+            background-image: none;
+            height: 1.5rem;
+            width: 1.5rem;
+            display: block;
+            --dxbl-image-margin-y: 0;
+        }
+
+        .demo-header.navbar .navbar-toggler:hover .navbar-toggler-icon {
+            background-color: currentColor !important;
+        }
+
+    .demo-header.navbar .demo-btn-container {
+        display: flex; /* ⭐ สำคัญ */
+        flex-direction: row; /* กันพลาด */
+        margin-left: auto;
+        align-items: center;
+    }
+
+.demo-header .logo-image {
+    margin-left: 0.5rem;
+    display: flex;
+    margin-right: 0.75rem;
+}
+
+    .demo-header .logo-image .logo-img {
+        width: 32px;
+        height: 32px;
+        background-image: url("/images/logo.svg");
+        display: block;
+    }
+
+.theme-default-dark .demo-header .logo-image .logo-img,
+.theme-blazing-dark .demo-header .logo-image .logo-img,
+.theme-cyborg .demo-header .logo-image .logo-img,
+.theme-solar .demo-header .logo-image .logo-img,
+.theme-superhero .demo-header .logo-image .logo-img {
+    background-image: none;
+    background-color: var(--bs-body-color);
+    -webkit-mask: url("/images/logo.svg") no-repeat center;
+}
+
+.demo-header .logo-image .logo-sec-img {
+    width: 115px;
+    height: 34px;
+    background-color: var(--bs-body-color);
+    -webkit-mask: url(../images/logo-sec.svg) no-repeat center;
+    mask: url(../images/logo-sec.svg) no-repeat center;
+    display: block;
+}
+
+.demo-header .logo-sep {
+    margin: 0 0.75rem;
+    background: currentColor;
+    opacity: 0.15;
+    width: 1px;
+    height: 2rem;
+}
+
+/*Button Container*/
+.demo-btn-container > .download-btn,
+.demo-btn-container > .github-btn {
+    --dxbl-btn-border-radius: 25px;
+    --dxbl-btn-border-width: 2px;
+
+    font-size: 0.875rem;
+    line-height: 1.125rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+.download-btn,
+.github-btn,
+.btn-sep,
+.theme-settings {
+    margin-right: .5rem;
+}
+
+.demo-btn-container > .theme-settings {
+    --dxbl-btn-border-radius: 50%;
+    --dxbl-btn-active-border-color: #50A534;
+    --dxbl-btn-hover-border-color: #50A534;
+    --dxbl-btn-border-color: #50A534;
+
+    width: 2.125rem;
+    height: 2.125rem;
+    border-width: 2px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    position: relative;
+}
+
+.demo-btn-container > .theme-settings:after {
+    content: "";
+    border-radius: 100%;
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: -2px;
+    right: -2px;
+    background-color: #50A534;
+}
+
+.btn-sep {
+    width: 1px;
+    height: 2.125rem;
+    display: inline-block;
+    background: var(--bs-body-color);
+    opacity: .125;
+}
+
+@media (max-width: 767.98px) {
+    .demo-btn-container > .dxbl-btn.dxbl-btn-standalone.download-btn,
+    .demo-btn-container > .dxbl-btn.dxbl-btn-standalone.github-btn {
+        --dxbl-btn-padding-x: 0.375rem;
+
+        height: 2.125rem;
+        width: 2.125rem;
+    }
+    .download-btn .demo-download-icon,
+    .github-btn .demo-github-icon {
+        margin-right: 0;
+    }
+    .download-btn span:not(.demo-download-icon),
+    .github-btn span:not(.demo-github-icon) {
+        display: none;
+    }
 }

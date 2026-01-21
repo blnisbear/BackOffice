@@ -1,8 +1,43 @@
-﻿@inherits DrawerStateLayoutComponentBase
+﻿@using MC.Office.Blazor.Testing.Components.Layout.Button
+@inherits DrawerStateLayoutComponentBase
 @inject NavigationManager NavigationManager
 
+<div class="demo-header-container">
+    <nav class="demo-header p-0 navbar navbar-dark" aria-label="Header menu">
+        <ToggleButton @bind-Toggled="@LayoutToggled" />
+        <div class="logo-image">
+            <a href="https://www.devexpress.com/" target="_blank" title="DevExpress">
+                <span class="logo-img"></span>
+            </a>
+            <div class="logo-sep"></div>
+            <a href="" target="_blank" title="Blazor Demos Home Page">
+                <span class="logo-sec-img"></span>
+            </a>
+        </div>
+        <div class="demo-btn-container">
+            <DxButton NavigateUrl="https://go.devexpress.com/DevexpressDownload_UniversalTrial.aspx"
+                      CssClass="download-btn"
+                      IconCssClass="fa-solid fa-download"
+                      Text="Free Trial" SizeMode="SizeMode.Large"></DxButton>
+            <DxButton NavigateUrl="https://github.com/DevExpress/blazor"
+                      CssClass="github-btn"
+                      IconCssClass="fa-brands fa-github"
+                      RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline"
+                      Text="GitHub" SizeMode="SizeMode.Large"></DxButton>
+            <div class="btn-sep"></div>
+            <DxButton Click="@ToggleThemeSwitcherPanel" CssClass="@GetThemeSwitcherCssClass()" SizeMode="SizeMode.Large"
+                      RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline" IconCssClass="fa-solid fa-palette"
+                      aria-label="Themes"
+                      aria-haspopup="True"
+                      aria-expanded="@(ThemeSwitcherShown.ToString())">
+            </DxButton>
+        </div>
+        @* <ThemeSwitcher @bind-Shown="@ThemeSwitcherShown" /> *@
+    </nav>
+</div>
+
 <div class="page">
-    <Drawer CssClass="navigation-drawer" PanelWidth="240px">
+    <Drawer CssClass="navigation-drawer" PanelWidth="240px" Toggled="@LayoutToggled">
         @* <HeaderTemplate>
             <div class="navigation-drawer-header">
                 <NavLink href="@AddDrawerStateToUrl("/")">
@@ -21,7 +56,7 @@
         <TargetContent>
             <div class="drawer-content">
                 <div class="nav-buttons-container">
-                    <NavLink aria-label="Open menu" href="@AddDrawerStateToUrlToggled(LocalPath)" class="menu-button">
+                    @* <NavLink aria-label="Open menu" href="@AddDrawerStateToUrlToggled(LocalPath)" class="menu-button">
                         <DxButton aria-label="Open menu" RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Text" CssClass="btn-icon-only" IconCssClass="icon icon-menu"></DxButton>
                     </NavLink>
                     @if (LocalPath != "/")
@@ -29,7 +64,7 @@
                         <NavLink href="@AddDrawerStateToUrl("/")" class="button-link">
                             <DxButton Text="Back to Home" RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Text" CssClass="back-button" IconCssClass="icon icon-back"></DxButton>
                         </NavLink>
-                    }
+                    } *@
                 </div>
                 <div class="page-content-container">
                     @Body
@@ -51,4 +86,46 @@
 
 @code {
     string LocalPath => new Uri(NavigationManager.Uri).LocalPath;
+
+    bool _layoutToggled;
+    bool _themeSwitcherShown;
+    bool _isDesktop = true;
+
+    bool LayoutToggled
+    {
+        get { return _layoutToggled; }
+        set
+        {
+            if (_layoutToggled != value)
+            {
+                _layoutToggled = value;
+                if (!_isDesktop && _layoutToggled)
+                    ThemeSwitcherShown = false;
+            }
+        }
+    }
+
+    bool ThemeSwitcherShown
+    {
+        get { return _themeSwitcherShown; }
+        set
+        {
+            if (_themeSwitcherShown != value)
+            {
+                _themeSwitcherShown = value;
+                if (!_isDesktop && _themeSwitcherShown)
+                    LayoutToggled = false;
+            }
+        }
+    }
+
+    void ToggleThemeSwitcherPanel()
+    {
+        ThemeSwitcherShown = !ThemeSwitcherShown;
+    }
+
+    string GetThemeSwitcherCssClass()
+    {
+        return "theme-settings " + ThemeSwitcherShown;
+    }
 }
