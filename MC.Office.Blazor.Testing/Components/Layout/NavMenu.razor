@@ -3,12 +3,12 @@
 
 <div class="navigation-menu">
     @* Search Box *@
-    <div class="menu-search">
+    @* <div class="menu-search">
         <DxTextBox @bind-Text="@SearchText"
                    Placeholder="Find demo by keyword"
                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
         </DxTextBox>
-    </div>
+    </div> *@
 
     @* Menu Tree *@
     <DxTreeView Data="@FilteredMenuItems"
@@ -373,12 +373,23 @@
         };
     }
 
+    // private void UpdateSelectedItem()
+    // {
+    //     currentLocalPath = new Uri(NavigationManager.Uri).LocalPath;
+    //     SelectedItem = MenuItems.FirstOrDefault(m =>
+    //         !string.IsNullOrEmpty(m.NavigateUrl) &&
+    //         string.Equals(m.NavigateUrl, currentLocalPath, StringComparison.OrdinalIgnoreCase));
+    // }
+
     private void UpdateSelectedItem()
     {
         currentLocalPath = new Uri(NavigationManager.Uri).LocalPath;
+
         SelectedItem = MenuItems.FirstOrDefault(m =>
             !string.IsNullOrEmpty(m.NavigateUrl) &&
             string.Equals(m.NavigateUrl, currentLocalPath, StringComparison.OrdinalIgnoreCase));
+
+        BuildBreadcrumb(SelectedItem); // ⭐ เพิ่มบรรทัดนี้
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -411,5 +422,34 @@
         public bool IsNew { get; set; }
         public bool HasBadge { get; set; }
         public bool HasChildren { get; set; }
+    }
+
+    public List<MenuItem> BreadcrumbItems = new();
+
+    private void BuildBreadcrumb(MenuItem? selected)
+    {
+        BreadcrumbItems.Clear();
+
+        // ⭐ เพิ่ม Home เป็นตัวแรก
+        var home = MenuItems.FirstOrDefault(x => x.Id == "home");
+        if (home != null)
+            BreadcrumbItems.Add(home);
+
+        if (selected == null)
+            return;
+
+        var stack = new Stack<MenuItem>();
+        var current = selected;
+
+        while (current != null && current.Id != "home")
+        {
+            stack.Push(current);
+            current = string.IsNullOrEmpty(current.ParentId)
+                ? null
+                : MenuItems.FirstOrDefault(x => x.Id == current.ParentId);
+        }
+
+        while (stack.Any())
+            BreadcrumbItems.Add(stack.Pop());
     }
 }

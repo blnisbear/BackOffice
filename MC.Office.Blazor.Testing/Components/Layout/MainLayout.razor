@@ -38,34 +38,48 @@
 
 <div class="page">
     <Drawer CssClass="navigation-drawer" PanelWidth="240px" Toggled="@LayoutToggled">
-        @* <HeaderTemplate>
-            <div class="navigation-drawer-header">
-                <NavLink href="@AddDrawerStateToUrl("/")">
-                    <img class="logo" src="images/logo.svg" alt="DevExpress logo" />
-                </NavLink>
-                <NavLink aria-label="Close menu" href="@AddDrawerStateToUrlToggled(LocalPath)">
-                    <DxButton aria-label="Close menu" RenderStyle="ButtonRenderStyle.Light" RenderStyleMode="ButtonRenderStyleMode.Text" CssClass="btn-icon-only" IconCssClass="@(ToggledDrawer ? "icon icon-close" : "icon icon-menu")"></DxButton>
-                </NavLink>
+        <HeaderTemplate>
+            <div class="drawer-header">
+                <!-- Search -->
+                <div class="drawer-search py-2">
+                    <DxTextBox CssClass="drawer-search-box" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                </div>
             </div>
-        </HeaderTemplate> *@
+        </HeaderTemplate>
         <BodyTemplate>
             <div class="w-100">
-                <NavMenu></NavMenu>
+                <NavMenu @ref="@NavMenuRef" />
             </div>
         </BodyTemplate>
         <TargetContent>
-            <div class="drawer-content">
-                <div class="nav-buttons-container">
-                    @* <NavLink aria-label="Open menu" href="@AddDrawerStateToUrlToggled(LocalPath)" class="menu-button">
-                        <DxButton aria-label="Open menu" RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Text" CssClass="btn-icon-only" IconCssClass="icon icon-menu"></DxButton>
-                    </NavLink>
-                    @if (LocalPath != "/")
+            @* Breadcrum *@
+            @if (NavMenuRef?.BreadcrumbItems?.Any() == true)
+            {
+                <nav class="dx-breadcrumb">
+                    @for (int i = 0; i < NavMenuRef.BreadcrumbItems.Count; i++)
                     {
-                        <NavLink href="@AddDrawerStateToUrl("/")" class="button-link">
-                            <DxButton Text="Back to Home" RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Text" CssClass="back-button" IconCssClass="icon icon-back"></DxButton>
-                        </NavLink>
-                    } *@
-                </div>
+                        var item = NavMenuRef.BreadcrumbItems[i];
+                        var isLast = i == NavMenuRef.BreadcrumbItems.Count - 1;
+
+                        <span class="dx-breadcrumb-item @(isLast ? "active" : "")"
+                              @onclick="@(() =>
+                              {
+                                  if (!isLast)
+                                  {
+                                      NavigationManager.NavigateTo(item.NavigateUrl);
+                                  }
+                              })">
+                            @item.Text
+                        </span>
+
+                        @if (!isLast)
+                        {
+                            <span class="breadcrumb-sep">›</span>
+                        }
+                    }
+                </nav>
+            }
+            <div class="drawer-content">
                 <div class="page-content-container">
                     @Body
                 </div>
@@ -85,6 +99,8 @@
 </div>
 
 @code {
+    private NavMenu? NavMenuRef;
+
     string LocalPath => new Uri(NavigationManager.Uri).LocalPath;
 
     bool _layoutToggled;
