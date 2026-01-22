@@ -2,16 +2,17 @@
 @implements IDisposable
 
 <div class="navigation-menu">
-    @* Search Box *@
-    @* <div class="menu-search">
-        <DxTextBox @bind-Text="@SearchText"
-                   Placeholder="Find demo by keyword"
-                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
-        </DxTextBox>
-    </div> *@
-
     @* Menu Tree *@
+    @* <DxTreeView Data="@FilteredMenuItems"
+                CssClass="menu-treeview"
+                UrlMatchMode="NavigationUrlMatchMode.Exact"
+                AllowSelectNodes="true"
+                NodeExpandCollapseAction="TreeViewNodeExpandCollapseAction.NodeClick"
+                ShowExpandButtons="true"
+                AnimationType="LayoutAnimationType.Slide"> *@
+
     <DxTreeView Data="@FilteredMenuItems"
+                @bind-ExpandedDataItems="@ExpandedItems"
                 CssClass="menu-treeview"
                 UrlMatchMode="NavigationUrlMatchMode.Exact"
                 AllowSelectNodes="true"
@@ -28,7 +29,7 @@
                                    HasChildren="HasChildren" />
         </DataMappings>
 
-        <NodeTemplate>
+        @* <NodeTemplate>
             @{
                 var item = (MenuItem)context.DataItem;
                 var isExpanded = context.Expanded; // เพิ่มบรรทัดนี้
@@ -63,20 +64,51 @@
                     </div>
                 }
             }
+        </NodeTemplate> *@
+        <NodeTemplate>
+            @{
+                var item = (MenuItem)context.DataItem;
+                var isExpanded = context.Expanded;
+
+                if (item.IsGroupHeader)
+                {
+                    <div class="menu-group-header">
+                        @if (item.HasChildren)
+                        {
+                            <i class="expand-icon fa-solid fa-chevron-right @(isExpanded ? "expanded" : "")"></i>
+                        }
+                        <span>@item.Text</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="menu-node-content" @onclick="@(() => NavigateToUrl(item.NavigateUrl))">
+                        @if (!string.IsNullOrEmpty(item.IconCssClass))
+                        {
+                            <i class="@item.IconCssClass menu-icon"></i>
+                        }
+                        <span class="menu-text">@((MarkupString)HighlightText(item.Text))</span>
+                        @if (item.IsNew)
+                        {
+                            <span class="menu-new-label">New</span>
+                        }
+                        @if (item.HasBadge)
+                        {
+                            <span class="menu-badge"></span>
+                        }
+                    </div>
+                }
+            }
         </NodeTemplate>
     </DxTreeView>
-
-    @* Version Info *@
-    @* <div class="menu-version">
-        <div>Version: 25.2.3</div>
-        <div>Copyright © 2000-2026 Developer Express Inc</div>
-    </div> *@
 </div>
 
 @code {
+    [Parameter] public string SearchText { get; set; } = "";
+
     private MenuItem? SelectedItem;
     private string? currentLocalPath;
-    private string SearchText = "";
+    
     private List<MenuItem> MenuItems = new();
     private IEnumerable<object>? ExpandedItems; // เพิ่มบรรทัดนี้
 
@@ -186,6 +218,7 @@
         public bool HasChildren { get; set; }
     }
 
+    #region Breadcrumb
     public List<MenuItem> BreadcrumbItems = new();
 
     private void BuildBreadcrumb(MenuItem? selected)
@@ -214,4 +247,25 @@
         while (stack.Any())
             BreadcrumbItems.Add(stack.Pop());
     }
+    #endregion
+
+    private string _previousSearchText = "";
+
+    // ⭐ เพิ่ม method สำหรับ highlight
+    private string HighlightText(string text)
+    {
+        if (string.IsNullOrWhiteSpace(SearchText) || string.IsNullOrWhiteSpace(text))
+            return text;
+
+        var index = text.IndexOf(SearchText, StringComparison.OrdinalIgnoreCase);
+        if (index == -1)
+            return text;
+
+        var before = text.Substring(0, index);
+        var match = text.Substring(index, SearchText.Length);
+        var after = text.Substring(index + SearchText.Length);
+
+        return $"{before}<mark class='search-highlight'>{match}</mark>{after}";
+    }
+
 }

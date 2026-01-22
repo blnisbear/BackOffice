@@ -50,13 +50,18 @@
                 <!-- Search -->
                 <div class="drawer-search d-flex align-items-center">
                     <i class="fa-solid fa-magnifying-glass fs-6 text-secondary"></i>
-                    <DxTextBox SizeMode="SizeMode.Large" NullText="Find by Keyword" CssClass="drawer-search-box" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                    <DxTextBox @bind-Text="@SearchText" 
+                               @bind-Text:after="StateHasChanged"
+                               SizeMode="SizeMode.Large" 
+                               NullText="Find by Keyword" 
+                               CssClass="drawer-search-box" 
+                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
                 </div>
             </div>
         </HeaderTemplate>
         <BodyTemplate>
             <div class="w-100">
-                <NavMenu @ref="@NavMenuRef" />
+                <NavMenu @ref="@NavMenuRef" SearchText="@SearchText" />
             </div>
         </BodyTemplate>
         <TargetContent>
@@ -107,6 +112,8 @@
 </div>
 
 @code {
+    private string SearchText = "";
+
     private NavMenu? NavMenuRef;
 
     string LocalPath => new Uri(NavigationManager.Uri).LocalPath;
