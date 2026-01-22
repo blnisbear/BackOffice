@@ -1,1 +1,82 @@
-﻿
+﻿@inject IJSRuntime JSRuntime
+
+@if (Shown)
+{
+    <div class="theme-switcher-panel" @onclick:stopPropagation="true">
+        <div class="theme-switcher-header">
+            <h6 class="theme-switcher-title">Theme Settings</h6>
+            <button class="theme-switcher-close" @onclick="ClosePanel" aria-label="Close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="theme-switcher-content">
+            <div class="theme-mode-section">
+                <h6 class="theme-section-title">Appearance</h6>
+                <div class="theme-mode-buttons">
+                    <button class="theme-mode-btn @(CurrentTheme == "light" ? "active" : "")"
+                            @onclick="@(() => SetTheme("light"))">
+                        <i class="fa-solid fa-sun"></i>
+                        <span>Light</span>
+                    </button>
+                    <button class="theme-mode-btn @(CurrentTheme == "dark" ? "active" : "")"
+                            @onclick="@(() => SetTheme("dark"))">
+                        <i class="fa-solid fa-moon"></i>
+                        <span>Dark</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @* <div class="theme-switcher-backdrop" @onclick="ClosePanel"></div> *@
+}
+
+@code {
+    [Parameter]
+    public bool Shown { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> ShownChanged { get; set; }
+
+    private string CurrentTheme { get; set; } = "light";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // โหลด theme จาก localStorage
+            CurrentTheme = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "theme") ?? "light";
+            await ApplyTheme(CurrentTheme);
+            StateHasChanged();
+        }
+    }
+
+    private async Task SetTheme(string theme)
+    {
+        CurrentTheme = theme;
+        await ApplyTheme(theme);
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "theme", theme);
+    }
+
+    private async Task ApplyTheme(string theme)
+    {
+        if (theme == "dark")
+        {
+            await JSRuntime.InvokeVoidAsync("document.documentElement.setAttribute", "data-bs-theme", "dark");
+            await JSRuntime.InvokeVoidAsync("document.body.classList.add", "theme-dark");
+            await JSRuntime.InvokeVoidAsync("document.body.classList.remove", "theme-light");
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("document.documentElement.setAttribute", "data-bs-theme", "light");
+            await JSRuntime.InvokeVoidAsync("document.body.classList.add", "theme-light");
+            await JSRuntime.InvokeVoidAsync("document.body.classList.remove", "theme-dark");
+        }
+    }
+
+    private async Task ClosePanel()
+    {
+        Shown = false;
+        await ShownChanged.InvokeAsync(Shown);
+    }
+}

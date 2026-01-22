@@ -1,5 +1,8 @@
 ﻿@using MC.Office.Blazor.Testing.Components.Layout.Button
+@using MC.Office.Blazor.Testing.Components.Layout.ThemeSwitcher
+
 @inherits DrawerStateLayoutComponentBase
+
 @inject NavigationManager NavigationManager
 
 <div class="demo-header-container">
@@ -17,11 +20,11 @@
         <div class="demo-btn-container">
             <DxButton NavigateUrl="https://go.devexpress.com/DevexpressDownload_UniversalTrial.aspx"
                       CssClass="download-btn"
-                      IconCssClass="fa-solid fa-download"
+                      IconCssClass="fa-solid fa-download fs-5"
                       Text="Free Trial" SizeMode="SizeMode.Large"></DxButton>
             <DxButton NavigateUrl="https://github.com/DevExpress/blazor"
                       CssClass="github-btn"
-                      IconCssClass="fa-brands fa-github"
+                      IconCssClass="fa-brands fa-github fs-5"
                       RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline"
                       Text="GitHub" SizeMode="SizeMode.Large"></DxButton>
             <div class="btn-sep"></div>
@@ -32,7 +35,7 @@
                       aria-expanded="@(ThemeSwitcherShown.ToString())">
             </DxButton>
         </div>
-        @* <ThemeSwitcher @bind-Shown="@ThemeSwitcherShown" /> *@
+        <ThemeSwitcher @bind-Shown="@ThemeSwitcherShown" />
     </nav>
 </div>
 
@@ -41,8 +44,9 @@
         <HeaderTemplate>
             <div class="drawer-header">
                 <!-- Search -->
-                <div class="drawer-search py-2">
-                    <DxTextBox CssClass="drawer-search-box" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                <div class="drawer-search d-flex align-items-center">
+                    <i class="fa-solid fa-magnifying-glass fs-6 text-secondary"></i>
+                    <DxTextBox SizeMode="SizeMode.Large" NullText="Find by Keyword" CssClass="drawer-search-box" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
                 </div>
             </div>
         </HeaderTemplate>
@@ -142,6 +146,8 @@
 
     string GetThemeSwitcherCssClass()
     {
-        return "theme-settings " + ThemeSwitcherShown;
+        return "theme-btn fs-6 theme-settings " + ThemeSwitcherShown;
     }
 }
+
+
