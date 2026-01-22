@@ -1,6 +1,13 @@
 ﻿@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 
+@* <DxButton Click="@OnToggleButtonClick"
+          IconCssClass="navbar-toggler-icon"
+          CssClass="navbar-toggler d-block border-0"
+          aria-label="@ButtonText"
+          aria-pressed="@((!Toggled).ToString())">
+</DxButton> *@
+
 <DxButton Click="@OnToggleButtonClick"
           IconCssClass="navbar-toggler-icon"
           CssClass="navbar-toggler d-block border-0"

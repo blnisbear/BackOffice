@@ -20,13 +20,17 @@
         <div class="demo-btn-container">
             <DxButton NavigateUrl="https://go.devexpress.com/DevexpressDownload_UniversalTrial.aspx"
                       CssClass="download-btn"
-                      IconCssClass="fa-solid fa-download fs-5"
-                      Text="Free Trial" SizeMode="SizeMode.Large"></DxButton>
+                      SizeMode="SizeMode.Large">
+                <i class="fa-solid fa-download fs-5 me-0 me-sm-0 me-md-1 me-lg-1 me-xl-1" />
+                <span class="d-none d-sm-none d-md-flex d-lg-flex d-xl-flex">Free Trial</span>
+            </DxButton>
             <DxButton NavigateUrl="https://github.com/DevExpress/blazor"
                       CssClass="github-btn"
-                      IconCssClass="fa-brands fa-github fs-5"
                       RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline"
-                      Text="GitHub" SizeMode="SizeMode.Large"></DxButton>
+                      SizeMode="SizeMode.Large">
+                <i class="fa-brands fa-github fs-5 me-0 me-sm-0 me-md-1 me-lg-1 me-xl-1" />
+                <span class="d-none d-sm-none d-md-flex d-lg-flex d-xl-flex">GitHub</span>
+            </DxButton>
             <div class="btn-sep"></div>
             <DxButton Click="@ToggleThemeSwitcherPanel" CssClass="@GetThemeSwitcherCssClass()" SizeMode="SizeMode.Large"
                       RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline" IconCssClass="fa-solid fa-palette"

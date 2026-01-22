@@ -156,6 +156,16 @@ html, body {
             --dxbl-image-margin-y: 0;
         }
 
+        [data-bs-theme="dark"]
+        .demo-header.navbar .navbar-toggler:hover {
+            background-color: color-mix( in srgb, var(--bs-body-bg) 92%, var(--bs-body-color) 8% );
+        }
+
+        [data-bs-theme="dark"]
+        .demo-header.navbar .navbar-toggler:active {
+            background-color: color-mix( in srgb, var(--bs-body-bg) 88%, var(--bs-body-color) 12% );
+        }
+
     .demo-header.navbar .demo-btn-container {
         display: flex; /* ⭐ สำคัญ */
         flex-direction: row; /* กันพลาด */
@@ -493,14 +503,15 @@ html, body {
     }
 
     .theme-mode-btn:hover {
-        border-color: var(--bs-primary);
+        border-color: var(--bs-body-color);
         background-color: var(--bs-secondary-bg);
     }
 
     .theme-mode-btn.active {
         border-color: var(--bs-primary);
         background-color: var(--bs-primary);
-        color: #fff;
+        color: var(--bs-white);
+/*        color: #fff;*/
     }
 
 /* Mobile responsiveness */
