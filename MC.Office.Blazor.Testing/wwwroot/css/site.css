@@ -141,6 +141,10 @@ html, body {
         border-radius: 50%;
     }
 
+        .demo-header.navbar .navbar-toggler:hover {
+            background-color: var(--bs-light);
+        }
+
         .demo-header.navbar .navbar-toggler .navbar-toggler-icon {
             mask-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4.5C0 3.67157 0.671573 3 1.5 3H22.5C23.3284 3 24 3.67157 24 4.5C24 5.32843 23.3284 6 22.5 6H1.5C0.671573 6 0 5.32843 0 4.5Z' fill='currentColor' fill-opacity='0.54'/%3E%3Cpath d='M0 12.5C0 11.6716 0.671573 11 1.5 11H22.5C23.3284 11 24 11.6716 24 12.5C24 13.3284 23.3284 14 22.5 14H1.5C0.671573 14 0 13.3284 0 12.5Z' fill='black' fill-opacity='0.54'/%3E%3Cpath d='M24 20.5C24 19.6716 23.3284 19 22.5 19H1.5C0.671573 19 0 19.6716 0 20.5C0 21.3284 0.671573 22 1.5 22H22.5C23.3284 22 24 21.3284 24 20.5Z' fill='currentColor' fill-opacity='0.54'/%3E%3C/svg%3E%0A");
             -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4.5C0 3.67157 0.671573 3 1.5 3H22.5C23.3284 3 24 3.67157 24 4.5C24 5.32843 23.3284 6 22.5 6H1.5C0.671573 6 0 5.32843 0 4.5Z' fill='currentColor' fill-opacity='0.54'/%3E%3Cpath d='M0 12.5C0 11.6716 0.671573 11 1.5 11H22.5C23.3284 11 24 11.6716 24 12.5C24 13.3284 23.3284 14 22.5 14H1.5C0.671573 14 0 13.3284 0 12.5Z' fill='black' fill-opacity='0.54'/%3E%3Cpath d='M24 20.5C24 19.6716 23.3284 19 22.5 19H1.5C0.671573 19 0 19.6716 0 20.5C0 21.3284 0.671573 22 1.5 22H22.5C23.3284 22 24 21.3284 24 20.5Z' fill='currentColor' fill-opacity='0.54'/%3E%3C/svg%3E%0A");
@@ -150,16 +154,6 @@ html, body {
             width: 1.5rem;
             display: block;
             --dxbl-image-margin-y: 0;
-        }
-
-        .demo-header.navbar .navbar-toggler:hover .navbar-toggler-icon {
-            background-color: var(--bs-light);
-            color: var(--bs-secondary);
-        }
-
-        .demo-header.navbar .navbar-toggler:active {
-            background-color: var(--bs-light);
-            color: var(--bs-secondary);
         }
 
     .demo-header.navbar .demo-btn-container {
@@ -230,6 +224,10 @@ html, body {
     display: flex;
     align-items: center;
 }
+    .demo-btn-container > .theme-btn:hover {
+        background-color: var(--bs-body-color);
+        color: var(--bs-body-bg);
+    }
 
 .demo-btn-container > .github-btn {
     --dxbl-btn-border-radius: 25px;
@@ -241,6 +239,11 @@ html, body {
     display: flex;
     align-items: center;
 }
+
+    .demo-btn-container > .github-btn:hover {
+        background-color: var(--bs-body-color);
+        color: var(--bs-body-bg);
+    }
 
 .download-btn,
 .github-btn,
@@ -360,6 +363,7 @@ html, body {
     --dxbl-text-edit-border-color: none;
     --dxbl-text-edit-border-hovered-color: none;
     --dxbl-text-edit-border-active-color: none;
+    color: var(--bs-body-color);
 }
 
 
