@@ -9,7 +9,8 @@
         <ToggleButton @bind-Toggled="@LayoutToggled" />
         <div class="d-flex justify-content-center align-items-center">
             <i class="fa-solid fa-globe fs-5 me-1 icon-gradient" />
-            <span class="fw-bold ms-1 fs-5 text-gradient">@GetOrgName</span>
+            <span class="fw-bold ms-1 fs-5 text-gradient d-none d-sm-none d-md-flex d-lg-flex d-xl-flex">@GetOrgName</span>
+            <span class="fw-bold ms-1 fs-5 text-gradient d-flex d-sm-flex d-md-none d-lg-none d-xl-none">@currentOrganize</span>
         </div>
         <div class="demo-btn-container">
             <OrganizeButton @bind-SelectedOrganize="@currentOrganize" />
