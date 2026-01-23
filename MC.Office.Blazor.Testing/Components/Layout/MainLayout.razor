@@ -8,8 +8,8 @@
     <nav class="demo-header p-0 navbar navbar-dark" aria-label="Header menu">
         <ToggleButton @bind-Toggled="@LayoutToggled" />
         <div class="d-flex justify-content-center align-items-center">
-            <i class="fa-solid fa-globe fs-5 me-1" />
-            <span class="fw-bold ms-1 fs-5 text-success">@GetOrgName</span>
+            <i class="fa-solid fa-globe fs-5 me-1 icon-gradient" />
+            <span class="fw-bold ms-1 fs-5 text-gradient">@GetOrgName</span>
         </div>
         <div class="demo-btn-container">
             <OrganizeButton @bind-SelectedOrganize="@currentOrganize" />
@@ -17,7 +17,8 @@
             <LanguageButton @bind-SelectedLanguage="@currentLanguage" />
 
             <div class="btn-sep"></div>
-            <DxButton SizeMode="SizeMode.Large" CssClass="mx-2 rounded-circle p-2" RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline" IconCssClass="fa-solid fa-user"></DxButton>
+
+            <UserProfileButton OnChangePasswordClick="HandleChangePassword" OnLogoutClick="HandleLogout" />
         </div>
     </nav>
 </div>
@@ -118,6 +119,22 @@
         "VN" => "DCASH VIETNAM",
         _ => "ORGANIZE"
     };
+
+    private void HandleChangePassword()
+    {
+        Console.WriteLine("Change Password clicked");
+        // Navigate to change password page or show modal
+        NavigationManager.NavigateTo("/change-password");
+    }
+
+    private void HandleLogout()
+    {
+        Console.WriteLine("Logout clicked");
+        // Additional logout logic can be added here
+        // Navigation to login is handled in the component
+    }
+
+
 }
 
 

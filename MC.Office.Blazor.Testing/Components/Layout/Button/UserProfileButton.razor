@@ -1,0 +1,131 @@
+﻿@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+<div class="position-relative d-inline-block"
+     @onmouseenter="OpenDropdown"
+     @onmouseleave="CloseDropdown"
+     @onclick="OnClickButton"
+     @ref="dropdownContainer">
+    <DxButton SizeMode="SizeMode.Large"
+              CssClass="mx-2 rounded-circle p-2"
+              RenderStyle="ButtonRenderStyle.Secondary"
+              RenderStyleMode="ButtonRenderStyleMode.Outline"
+              IconCssClass="fa-solid fa-user">
+    </DxButton>
+
+    @if (isDropdownOpen)
+    {
+        <div class="position-absolute bg-white border rounded shadow-lg end-0"
+             style="z-index: 1050; min-width: 200px; margin-top: 1px;"
+             @onmouseleave="CloseDropdown">
+            <div class="py-2">
+                <!-- Username Display -->
+                <div class="px-3 py-2 border-bottom">
+                    <div class="d-flex align-items-center">
+                        <i class="fa-solid fa-user me-2 text-muted"></i>
+                        <div>
+                            <div class="fw-medium">@userName</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Change Password -->
+                <div class="px-3 py-2 d-flex align-items-center menu-item"
+                     style="cursor: pointer;"
+                     @onclick="OnChangePassword">
+                    <i class="fa-solid fa-key me-2 text-muted"></i>
+                    <span class="flex-grow-1">แก้ไขรหัสผ่าน</span>
+                </div>
+
+                <!-- Logout -->
+                <div class="px-3 py-2 d-flex align-items-center menu-item"
+                     style="cursor: pointer;"
+                     @onclick="OnLogout">
+                    <i class="fa-solid fa-right-from-bracket me-2 text-muted"></i>
+                    <span class="flex-grow-1">Logout</span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .menu-item:hover {
+        background-color: var(--bs-light) !important;
+    }
+</style>
+
+@code {
+    private bool isDropdownOpen = false;
+    private ElementReference dropdownContainer;
+    private string userName = "Loading...";
+
+    [Parameter]
+    public EventCallback OnChangePasswordClick { get; set; }
+
+    [Parameter]
+    public EventCallback OnLogoutClick { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserName();
+    }
+
+    private async Task LoadUserName()
+    {
+        try
+        {
+            // ดึง username จาก localStorage
+            userName = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "userName");
+
+            if (string.IsNullOrEmpty(userName))
+            {
+                userName = "Guest";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading username: {ex.Message}");
+            userName = "Guest";
+        }
+
+        StateHasChanged();
+    }
+
+    private void OnClickButton()
+    {
+        isDropdownOpen = !isDropdownOpen;
+        StateHasChanged();
+    }
+
+    private void OpenDropdown()
+    {
+        isDropdownOpen = true;
+    }
+
+    private void CloseDropdown()
+    {
+        isDropdownOpen = false;
+    }
+
+    private async Task OnChangePassword()
+    {
+        isDropdownOpen = false;
+        await OnChangePasswordClick.InvokeAsync();
+        StateHasChanged();
+    }
+
+    private async Task OnLogout()
+    {
+        isDropdownOpen = false;
+
+        // ลบข้อมูลจาก localStorage
+        await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "userName");
+        await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "authToken");
+
+        await OnLogoutClick.InvokeAsync();
+
+        // Navigate to login page
+        NavigationManager.NavigateTo("/login", true);
+    }
+}

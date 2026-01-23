@@ -61,6 +61,14 @@
 }
 
 
-/*.btn-search-box-custom ::deep .dxbl-text-edit {
-     --dxbl-text-edit-border-width: none; 
-}*/
+.text-gradient {
+    background: linear-gradient( 90deg, var(--bs-dark), var(--bs-primary) );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.icon-gradient {
+    background: linear-gradient( 90deg, var(--bs-warning), var(--bs-dark) );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
