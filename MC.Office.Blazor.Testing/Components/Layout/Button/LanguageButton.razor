@@ -1,0 +1,119 @@
+﻿<div class="position-relative d-inline-block"
+     @onmouseenter="OpenDropdown"
+     @onmouseleave="CloseDropdown"
+     @onclick="OnClickButton"
+     @ref="dropdownContainer">
+    <DxButton CssClass="me-2 rounded-5 px-2 px-sm-2 px-md-4 px-lg-4 px-xl-4 py-2 py-sm-2 py-md-2 py-lg-2 py-xl-2"
+              RenderStyle="ButtonRenderStyle.Secondary"
+              RenderStyleMode="ButtonRenderStyleMode.Outline"
+              SizeMode="SizeMode.Large">
+        <div class="d-flex align-items-center" style="min-width: 45px;">
+            <img src="@GetFlagUrl(SelectedLanguage)"
+                 alt="@SelectedLanguage"
+                 class="rounded-circle"
+                 style="width: 20px; height: 20px; object-fit: cover;" />
+            <span class="ms-1">@GetLanguageCode(SelectedLanguage)</span>
+        </div>
+    </DxButton>
+
+    @if (isDropdownOpen)
+    {
+        <div class="position-absolute bg-white border rounded shadow-lg end-0 w-100"
+             style="z-index: 1050; min-width: 120px; margin-top: 1px;"
+             @onmouseleave="CloseDropdown">
+            <div class="py-2">
+                @foreach (var lang in languages)
+                {
+                    <div class="px-3 py-2 d-flex align-items-center @(lang.Code == SelectedLanguage ? "bg-primary bg-opacity-10 text-primary fw-medium" : "")"
+                         style="cursor: pointer; min-width: 100px;"
+                         @onclick="() => SelectLanguage(lang.Code)">
+                        <img src="@GetFlagUrl(lang.Code)"
+                             alt="@lang.Name"
+                             class="rounded-circle me-2"
+                             style="width: 24px; height: 24px; object-fit: cover;" />
+                        <span class="flex-grow-1">@lang.Code</span>
+                        @if (lang.Code == SelectedLanguage)
+                        {
+                            <i class="fa-solid fa-check ms-2 small text-primary"></i>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .position-relative div[style*="cursor: pointer"]:hover:not(.bg-primary) {
+        background-color: var(--bs-light) !important;
+    }
+</style>
+
+@code {
+    private bool isDropdownOpen = false;
+    private ElementReference dropdownContainer;
+
+    private class LanguageItem
+    {
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string CultureCode { get; set; } = string.Empty;
+    }
+
+    private List<LanguageItem> languages = new()
+    {
+        new LanguageItem { Code = "TH", Name = "ไทย", CultureCode = "th-TH" },
+        new LanguageItem { Code = "EN", Name = "English", CultureCode = "en-US" },
+        new LanguageItem { Code = "VN", Name = "Tiếng Việt", CultureCode = "vi-VN" },
+        new LanguageItem { Code = "MY", Name = "Bahasa Melayu", CultureCode = "ms-MY" }
+    };
+
+    [Parameter]
+    public string SelectedLanguage { get; set; } = "TH";
+
+    [Parameter]
+    public EventCallback<string> SelectedLanguageChanged { get; set; }
+
+    private void OnClickButton()
+    {
+        isDropdownOpen = !isDropdownOpen;
+        StateHasChanged();
+    }
+
+    private void OpenDropdown()
+    {
+        isDropdownOpen = true;
+    }
+
+    private void CloseDropdown()
+    {
+        isDropdownOpen = false;
+    }
+
+    private async Task SelectLanguage(string languageCode)
+    {
+        SelectedLanguage = languageCode;
+        await SelectedLanguageChanged.InvokeAsync(languageCode);
+        isDropdownOpen = false;
+    }
+
+    private string GetFlagUrl(string languageCode)
+    {
+        var lang = languages.FirstOrDefault(l => l.Code == languageCode);
+        if (lang == null) return "https://flagcdn.com/w80/th.png";
+
+        return lang.CultureCode switch
+        {
+            "th-TH" => "https://flagcdn.com/w80/th.png",
+            "en-US" => "https://flagcdn.com/w80/us.png",
+            "vi-VN" => "https://flagcdn.com/w80/vn.png",
+            "ms-MY" => "https://flagcdn.com/w80/my.png",
+            _ => "https://flagcdn.com/w80/th.png"
+        };
+    }
+
+    private string GetLanguageCode(string languageCode)
+    {
+        return languageCode;
+    }
+}

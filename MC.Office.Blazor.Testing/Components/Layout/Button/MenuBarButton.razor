@@ -1,0 +1,148 @@
+﻿<div class="position-relative d-inline-block w-100"
+     @onmouseenter="OpenDropdown"
+     @onmouseleave="CloseDropdown"
+     @onclick="OpenDropdown">
+    <DxButton CssClass="rounded-5 px-4 py-2 w-100" RenderStyle="ButtonRenderStyle.Primary" SizeMode="SizeMode.Medium">
+        <div class="d-flex align-items-center justify-content-between w-100">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-folder-open me-2 flex-shrink-0"></i>
+            </div>
+            <div class="d-flex align-items-center">
+                <span class="text-truncate d-inline-block" style="max-width: 100%;">@DisplayText</span>
+            </div>
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-chevron-down ms-2"></i>
+            </div>
+        </div>
+    </DxButton>
+
+    @if (CurrentOrganize != null && isOpen)
+    {
+        <div class="position-absolute bg-white border rounded shadow-lg start-0 w-100"
+             style="z-index: 1050; margin-top: 1px;"
+             @onmouseleave="CloseDropdown"
+             @onmouseenter="OpenDropdown">
+            <div class="py-2">
+                @foreach (var menu in CurrentOrganize.Menus)
+                {
+                    <div class="px-3 py-2 d-flex align-items-center @(SelectedMenu == menu ? "bg-primary bg-opacity-10 text-primary fw-medium" : "")"
+                         style="cursor: pointer;"
+                         @onclick="() => SelectMenu(menu)"
+                         @onclick:stopPropagation="true">
+                        <i class="fa-solid fa-folder me-2 @(SelectedMenu == menu ? "text-primary" : "text-secondary")"></i>
+                        <span class="flex-grow-1">@menu</span>
+                        @if (SelectedMenu == menu)
+                        {
+                            <i class="fa-solid fa-check ms-auto small text-primary"></i>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .position-relative div[style*="cursor: pointer"]:hover:not(.bg-primary) {
+        background-color: var(--bs-light) !important;
+    }
+
+</style>
+
+@code {
+    [Parameter] public EventCallback<string> OnMenuSelected { get; set; }
+    [Parameter] public string? SelectedOrganize { get; set; }
+
+    private bool isOpen = false;
+    private string? previousOrganize = null;
+
+    private OrganizeMenu? CurrentOrganize =>
+        Organizes.FirstOrDefault(o =>
+            o.OrganizeName.Equals(SelectedOrganize, StringComparison.OrdinalIgnoreCase));
+
+    private string SelectedMenu = "";
+
+    private string DisplayText =>
+        CurrentOrganize == null ? "Selected Menu" : SelectedMenu;
+
+    private string GetFirstMenu()
+    {
+        return CurrentOrganize?.Menus?.FirstOrDefault() ?? "Selected Menu";
+    }
+
+    protected override void OnParametersSet()
+    {
+        // Reset menu เมื่อเปลี่ยน Organize
+        if (previousOrganize != SelectedOrganize)
+        {
+            previousOrganize = SelectedOrganize;
+            SelectedMenu = GetFirstMenu(); // ⭐ เปลี่ยนจาก "Selected Menu"
+            isOpen = false;
+
+            // ⭐ แจ้งเปลี่ยนแปลงไปยัง Parent
+            if (OnMenuSelected.HasDelegate)
+            {
+                OnMenuSelected.InvokeAsync(SelectedMenu);
+            }
+        }
+    }
+
+
+    private void OnClickButton()
+    {
+        isOpen = !isOpen;
+        StateHasChanged();
+    }
+
+    private void OpenDropdown()
+    {
+        isOpen = true;
+        StateHasChanged();
+    }
+
+    private void CloseDropdown()
+    {
+        isOpen = false;
+        StateHasChanged();
+    }
+
+    private async Task SelectMenu(string menu)
+    {
+        SelectedMenu = menu;
+        isOpen = false;
+
+        if (OnMenuSelected.HasDelegate)
+        {
+            await OnMenuSelected.InvokeAsync(menu);
+        }
+
+        StateHasChanged();
+    }
+
+    // MockUp Data: 4 Organize พร้อม Menus
+    private List<OrganizeMenu> Organizes = new()
+    {
+        new() {
+            OrganizeName = "MCIC",
+            Menus = new() { "User Management", "Settings", "Permissions", "Roles", "Access Control" }
+        },
+        new() {
+            OrganizeName = "LF",
+            Menus = new() { "Dashboard", "Reports", "Analytics", "Logs", "Monitoring" }
+        },
+        new() {
+            OrganizeName = "VLP",
+            Menus = new() { "Profile", "Notifications", "Preferences", "Security", "Privacy" }
+        },
+        new() {
+            OrganizeName = "VN",
+            Menus = new() { "Admin Panel", "Audit Trail", "Configuration", "System Settings", "Backup" }
+        }
+    };
+
+    public class OrganizeMenu
+    {
+        public string OrganizeName { get; set; } = "";
+        public List<string> Menus { get; set; } = new();
+    }
+}

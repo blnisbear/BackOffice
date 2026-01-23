@@ -2,15 +2,6 @@
 @implements IDisposable
 
 <div class="navigation-menu">
-    @* Menu Tree *@
-    @* <DxTreeView Data="@FilteredMenuItems"
-                CssClass="menu-treeview"
-                UrlMatchMode="NavigationUrlMatchMode.Exact"
-                AllowSelectNodes="true"
-                NodeExpandCollapseAction="TreeViewNodeExpandCollapseAction.NodeClick"
-                ShowExpandButtons="true"
-                AnimationType="LayoutAnimationType.Slide"> *@
-
     <DxTreeView Data="@FilteredMenuItems"
                 @bind-ExpandedDataItems="@ExpandedItems"
                 CssClass="menu-treeview"
@@ -28,18 +19,16 @@
                                    NavigateUrl="NavigateUrl"
                                    HasChildren="HasChildren" />
         </DataMappings>
-
-        @* <NodeTemplate>
+        <NodeTemplate>
             @{
                 var item = (MenuItem)context.DataItem;
-                var isExpanded = context.Expanded; // เพิ่มบรรทัดนี้
+                var isExpanded = context.Expanded;
 
                 if (item.IsGroupHeader)
                 {
                     <div class="menu-group-header">
                         @if (item.HasChildren)
                         {
-                            // เพิ่มคลาส expanded เมื่อ node ถูก expand
                             <i class="expand-icon fa-solid fa-chevron-right @(isExpanded ? "expanded" : "")"></i>
                         }
                         <span>@item.Text</span>
@@ -64,53 +53,20 @@
                     </div>
                 }
             }
-        </NodeTemplate> *@
-        <NodeTemplate>
-            @{
-                var item = (MenuItem)context.DataItem;
-                var isExpanded = context.Expanded;
-
-                if (item.IsGroupHeader)
-                {
-                    <div class="menu-group-header">
-                        @if (item.HasChildren)
-                        {
-                            <i class="expand-icon fa-solid fa-chevron-right @(isExpanded ? "expanded" : "")"></i>
-                        }
-                        <span>@item.Text</span>
-                    </div>
-                }
-                else
-                {
-                    <div class="menu-node-content" @onclick="@(() => NavigateToUrl(item.NavigateUrl))">
-                        @if (!string.IsNullOrEmpty(item.IconCssClass))
-                        {
-                            <i class="@item.IconCssClass menu-icon"></i>
-                        }
-                        <span class="menu-text">@((MarkupString)HighlightText(item.Text))</span>
-                        @if (item.IsNew)
-                        {
-                            <span class="menu-new-label">New</span>
-                        }
-                        @if (item.HasBadge)
-                        {
-                            <span class="menu-badge"></span>
-                        }
-                    </div>
-                }
-            }
         </NodeTemplate>
     </DxTreeView>
 </div>
 
 @code {
-    [Parameter] public string SearchText { get; set; } = "";
+    [Parameter] public string SelectedMenuCategory { get; set; } = "";
+    
+    string SearchText { get; set; } = "";
 
     private MenuItem? SelectedItem;
     private string? currentLocalPath;
     
     private List<MenuItem> MenuItems = new();
-    private IEnumerable<object>? ExpandedItems; // เพิ่มบรรทัดนี้
+    private IEnumerable<object>? ExpandedItems;
 
     private List<MenuItem> FilteredMenuItems =>
         string.IsNullOrWhiteSpace(SearchText)
@@ -129,51 +85,230 @@
         NavigationManager.LocationChanged += OnLocationChanged;
     }
 
+    // ⭐ เพิ่ม method นี้
+    protected override void OnParametersSet()
+    {
+        InitializeMenuItems();
+        StateHasChanged();
+    }
+
+    // ⭐ แก้ไข method นี้
     private void InitializeMenuItems()
     {
-        MenuItems = new List<MenuItem>
+        // เลือกชุดข้อมูลตาม SelectedMenuCategory
+        MenuItems = SelectedMenuCategory switch
         {
-            // Main items
-            new MenuItem { Id = "home", Text = "Home", NavigateUrl = "/", IconCssClass = "dx-icon-home" },
-            new MenuItem { Id = "counter", Text = "Counter", NavigateUrl = "/counter", IconCssClass = "dx-icon-refresh" },
-            new MenuItem { Id = "weather", Text = "Weather", NavigateUrl = "/weather", IconCssClass = "dx-icon-cloud" },
-
-            // AI-powered Extensions
-            new MenuItem { Id = "ai-group", Text = "AI-powered Extensions", IsGroupHeader = true, HasChildren = true },
-            new MenuItem { Id = "ai-chat", ParentId = "ai-group", Text = "AI Chat", NavigateUrl = "/ai-chat", IconCssClass = "fa-solid fa-comments", HasBadge = true },
-            new MenuItem { Id = "rich-editor", ParentId = "ai-group", Text = "Rich Text Editor", NavigateUrl = "/rich-editor", IconCssClass = "fa-solid fa-file-pen" },
-            new MenuItem { Id = "html-editor", ParentId = "ai-group", Text = "HTML Editor", NavigateUrl = "/html-editor", IconCssClass = "fa-solid fa-code" },
-            new MenuItem { Id = "memo", ParentId = "ai-group", Text = "Memo", NavigateUrl = "/memo", IconCssClass = "fa-solid fa-note-sticky", IsNew = true },
-            new MenuItem { Id = "grid-ai", ParentId = "ai-group", Text = "Grid", NavigateUrl = "/grid-ai", IconCssClass = "fa-solid fa-table" },
-            new MenuItem { Id = "reports", ParentId = "ai-group", Text = "Reports", NavigateUrl = "/reports", IconCssClass = "fa-solid fa-chart-line" },
-
-            // Data Management
-            new MenuItem { Id = "data-mgmt", Text = "Data Management", IsGroupHeader = true, HasChildren = true },
-            new MenuItem { Id = "grid-data", ParentId = "data-mgmt", Text = "Grid", NavigateUrl = "/grid", IconCssClass = "fa-solid fa-table-cells", HasBadge = true },
-            new MenuItem { Id = "treelist", ParentId = "data-mgmt", Text = "TreeList", NavigateUrl = "/treelist", IconCssClass = "fa-solid fa-sitemap", HasBadge = true },
-            new MenuItem { Id = "filter-builder", ParentId = "data-mgmt", Text = "Filter Builder", NavigateUrl = "/filter", IconCssClass = "fa-solid fa-filter", HasBadge = true },
-
-            // Data Editors
-            new MenuItem { Id = "data-editors", Text = "Data Editors", IsGroupHeader = true, HasChildren = true },
-            new MenuItem { Id = "overview", ParentId = "data-editors", Text = "Overview", NavigateUrl = "/overview", IconCssClass = "fa-solid fa-circle-info" },
-            new MenuItem { Id = "common-concepts", ParentId = "data-editors", Text = "Common Concepts", NavigateUrl = "/concepts", IconCssClass = "fa-solid fa-lightbulb" },
-            new MenuItem { Id = "calendar", ParentId = "data-editors", Text = "Calendar", NavigateUrl = "/calendar", IconCssClass = "fa-solid fa-calendar" },
-            new MenuItem { Id = "checkbox", ParentId = "data-editors", Text = "CheckBox", NavigateUrl = "/checkbox", IconCssClass = "fa-solid fa-square-check" },
-            new MenuItem { Id = "color-palette", ParentId = "data-editors", Text = "Color Palette", NavigateUrl = "/colors", IconCssClass = "fa-solid fa-palette" },
-            new MenuItem { Id = "combobox", ParentId = "data-editors", Text = "ComboBox", NavigateUrl = "/combobox", IconCssClass = "fa-solid fa-list" },
-            new MenuItem { Id = "date-edit", ParentId = "data-editors", Text = "Date Edit", NavigateUrl = "/date", IconCssClass = "fa-solid fa-calendar-days" },
-            new MenuItem { Id = "date-range", ParentId = "data-editors", Text = "Date Range Picker", NavigateUrl = "/daterange", IconCssClass = "fa-solid fa-calendar-week" },
-            new MenuItem { Id = "dropdown", ParentId = "data-editors", Text = "DropDown Box", NavigateUrl = "/dropdown", IconCssClass = "fa-solid fa-caret-down" }
+            "User Management" => GetUserManagementMenu(),
+            "Settings" => GetSettingsMenu(),
+            "Permissions" => GetPermissionsMenu(),
+            "Roles" => GetRolesMenu(),
+            "Access Control" => GetAccessControlMenu(),
+            
+            "Dashboard" => GetDashboardMenu(),
+            "Reports" => GetReportsMenu(),
+            "Analytics" => GetAnalyticsMenu(),
+            "Logs" => GetLogsMenu(),
+            "Monitoring" => GetMonitoringMenu(),
+            
+            "Profile" => GetProfileMenu(),
+            "Notifications" => GetNotificationsMenu(),
+            "Preferences" => GetPreferencesMenu(),
+            "Security" => GetSecurityMenu(),
+            "Privacy" => GetPrivacyMenu(),
+            
+            "Admin Panel" => GetAdminPanelMenu(),
+            "Audit Trail" => GetAuditTrailMenu(),
+            "Configuration" => GetConfigurationMenu(),
+            "System Settings" => GetSystemSettingsMenu(),
+            "Backup" => GetBackupMenu(),
+            
+            _ => GetDefaultMenu()
         };
     }
 
-    // private void UpdateSelectedItem()
-    // {
-    //     currentLocalPath = new Uri(NavigationManager.Uri).LocalPath;
-    //     SelectedItem = MenuItems.FirstOrDefault(m =>
-    //         !string.IsNullOrEmpty(m.NavigateUrl) &&
-    //         string.Equals(m.NavigateUrl, currentLocalPath, StringComparison.OrdinalIgnoreCase));
-    // }
+    #region ⭐ เพิ่ม MockUp Data Methods
+
+    // MCIC Menus
+    private List<MenuItem> GetUserManagementMenu() => new()
+    {
+        new MenuItem { Id = "users", Text = "All Users", NavigateUrl = "/users", IconCssClass = "fa-solid fa-users" },
+        new MenuItem { Id = "add-user", Text = "Add User", NavigateUrl = "/users/add", IconCssClass = "fa-solid fa-user-plus", IsNew = true },
+        new MenuItem { Id = "user-groups", Text = "User Groups", NavigateUrl = "/users/groups", IconCssClass = "fa-solid fa-user-group" },
+        new MenuItem { Id = "import-export", Text = "Import/Export", IsGroupHeader = true, HasChildren = true },
+        new MenuItem { Id = "import", ParentId = "import-export", Text = "Import Users", NavigateUrl = "/users/import", IconCssClass = "fa-solid fa-file-import" },
+        new MenuItem { Id = "export", ParentId = "import-export", Text = "Export Users", NavigateUrl = "/users/export", IconCssClass = "fa-solid fa-file-export" },
+    };
+
+    private List<MenuItem> GetSettingsMenu() => new()
+    {
+        new MenuItem { Id = "general", Text = "General", NavigateUrl = "/settings/general", IconCssClass = "fa-solid fa-gear" },
+        new MenuItem { Id = "appearance", Text = "Appearance", NavigateUrl = "/settings/appearance", IconCssClass = "fa-solid fa-palette" },
+        new MenuItem { Id = "notifications-set", Text = "Notifications", NavigateUrl = "/settings/notifications", IconCssClass = "fa-solid fa-bell", HasBadge = true },
+        new MenuItem { Id = "integrations", Text = "Integrations", NavigateUrl = "/settings/integrations", IconCssClass = "fa-solid fa-plug" },
+    };
+
+    private List<MenuItem> GetPermissionsMenu() => new()
+    {
+        new MenuItem { Id = "perm-overview", Text = "Overview", NavigateUrl = "/permissions", IconCssClass = "fa-solid fa-shield-halved" },
+        new MenuItem { Id = "role-perm", Text = "Role Permissions", NavigateUrl = "/permissions/roles", IconCssClass = "fa-solid fa-user-shield" },
+        new MenuItem { Id = "resource-perm", Text = "Resources", NavigateUrl = "/permissions/resources", IconCssClass = "fa-solid fa-lock" },
+    };
+
+    private List<MenuItem> GetRolesMenu() => new()
+    {
+        new MenuItem { Id = "all-roles", Text = "All Roles", NavigateUrl = "/roles", IconCssClass = "fa-solid fa-user-tag" },
+        new MenuItem { Id = "create-role", Text = "Create Role", NavigateUrl = "/roles/create", IconCssClass = "fa-solid fa-plus" },
+        new MenuItem { Id = "assign-roles", Text = "Assign Roles", NavigateUrl = "/roles/assign", IconCssClass = "fa-solid fa-user-check" },
+    };
+
+    private List<MenuItem> GetAccessControlMenu() => new()
+    {
+        new MenuItem { Id = "policies", Text = "Access Policies", NavigateUrl = "/access/policies", IconCssClass = "fa-solid fa-file-contract" },
+        new MenuItem { Id = "ip-whitelist", Text = "IP Whitelist", NavigateUrl = "/access/ip", IconCssClass = "fa-solid fa-network-wired" },
+        new MenuItem { Id = "2fa", Text = "Two-Factor Auth", NavigateUrl = "/access/2fa", IconCssClass = "fa-solid fa-mobile-screen" },
+    };
+
+    // LF Menus
+    private List<MenuItem> GetDashboardMenu() => new()
+    {
+        new MenuItem { Id = "dash-overview", Text = "Overview", NavigateUrl = "/dashboard", IconCssClass = "fa-solid fa-chart-line" },
+        new MenuItem { Id = "analytics-dash", Text = "Analytics", NavigateUrl = "/dashboard/analytics", IconCssClass = "fa-solid fa-chart-pie" },
+        new MenuItem { Id = "realtime", Text = "Real-time", NavigateUrl = "/dashboard/realtime", IconCssClass = "fa-solid fa-bolt", HasBadge = true },
+    };
+
+    private List<MenuItem> GetReportsMenu() => new()
+    {
+        new MenuItem { Id = "sales-report", Text = "Sales Reports", NavigateUrl = "/reports/sales", IconCssClass = "fa-solid fa-file-invoice-dollar" },
+        new MenuItem { Id = "user-report", Text = "User Reports", NavigateUrl = "/reports/users", IconCssClass = "fa-solid fa-file-lines" },
+        new MenuItem { Id = "custom-report", Text = "Custom Reports", NavigateUrl = "/reports/custom", IconCssClass = "fa-solid fa-file-circle-plus", IsNew = true },
+    };
+
+    private List<MenuItem> GetAnalyticsMenu() => new()
+    {
+        new MenuItem { Id = "traffic", Text = "Traffic", NavigateUrl = "/analytics/traffic", IconCssClass = "fa-solid fa-chart-simple" },
+        new MenuItem { Id = "conversion", Text = "Conversions", NavigateUrl = "/analytics/conversion", IconCssClass = "fa-solid fa-arrow-trend-up" },
+        new MenuItem { Id = "behavior", Text = "User Behavior", NavigateUrl = "/analytics/behavior", IconCssClass = "fa-solid fa-users-viewfinder" },
+    };
+
+    private List<MenuItem> GetLogsMenu() => new()
+    {
+        new MenuItem { Id = "system-logs", Text = "System Logs", NavigateUrl = "/logs/system", IconCssClass = "fa-solid fa-server" },
+        new MenuItem { Id = "error-logs", Text = "Error Logs", NavigateUrl = "/logs/errors", IconCssClass = "fa-solid fa-triangle-exclamation", HasBadge = true },
+        new MenuItem { Id = "access-logs", Text = "Access Logs", NavigateUrl = "/logs/access", IconCssClass = "fa-solid fa-right-to-bracket" },
+    };
+
+    private List<MenuItem> GetMonitoringMenu() => new()
+    {
+        new MenuItem { Id = "servers", Text = "Server Status", NavigateUrl = "/monitoring/servers", IconCssClass = "fa-solid fa-server", HasBadge = true },
+        new MenuItem { Id = "performance", Text = "Performance", NavigateUrl = "/monitoring/performance", IconCssClass = "fa-solid fa-gauge-high" },
+        new MenuItem { Id = "alerts", Text = "Alerts", NavigateUrl = "/monitoring/alerts", IconCssClass = "fa-solid fa-bell-exclamation" },
+    };
+
+    // VLP Menus
+    private List<MenuItem> GetProfileMenu() => new()
+    {
+        new MenuItem { Id = "my-profile", Text = "My Profile", NavigateUrl = "/profile", IconCssClass = "fa-solid fa-user" },
+        new MenuItem { Id = "edit-profile", Text = "Edit Profile", NavigateUrl = "/profile/edit", IconCssClass = "fa-solid fa-user-pen" },
+        new MenuItem { Id = "password", Text = "Change Password", NavigateUrl = "/profile/password", IconCssClass = "fa-solid fa-key" },
+    };
+
+    private List<MenuItem> GetNotificationsMenu() => new()
+    {
+        new MenuItem { Id = "all-notif", Text = "All", NavigateUrl = "/notifications", IconCssClass = "fa-solid fa-bell" },
+        new MenuItem { Id = "unread", Text = "Unread", NavigateUrl = "/notifications/unread", IconCssClass = "fa-solid fa-envelope", HasBadge = true },
+        new MenuItem { Id = "notif-settings", Text = "Settings", NavigateUrl = "/notifications/settings", IconCssClass = "fa-solid fa-sliders" },
+    };
+
+    private List<MenuItem> GetPreferencesMenu() => new()
+    {
+        new MenuItem { Id = "language", Text = "Language", NavigateUrl = "/preferences/language", IconCssClass = "fa-solid fa-language" },
+        new MenuItem { Id = "theme", Text = "Theme", NavigateUrl = "/preferences/theme", IconCssClass = "fa-solid fa-paintbrush" },
+        new MenuItem { Id = "timezone", Text = "Timezone", NavigateUrl = "/preferences/timezone", IconCssClass = "fa-solid fa-clock" },
+    };
+
+    private List<MenuItem> GetSecurityMenu() => new()
+    {
+        new MenuItem { Id = "sec-overview", Text = "Overview", NavigateUrl = "/security", IconCssClass = "fa-solid fa-shield" },
+        new MenuItem { Id = "sessions", Text = "Active Sessions", NavigateUrl = "/security/sessions", IconCssClass = "fa-solid fa-laptop" },
+        new MenuItem { Id = "history", Text = "Login History", NavigateUrl = "/security/history", IconCssClass = "fa-solid fa-clock-rotate-left" },
+    };
+
+    private List<MenuItem> GetPrivacyMenu() => new()
+    {
+        new MenuItem { Id = "privacy-set", Text = "Privacy Settings", NavigateUrl = "/privacy", IconCssClass = "fa-solid fa-user-lock" },
+        new MenuItem { Id = "data-export", Text = "Export Data", NavigateUrl = "/privacy/export", IconCssClass = "fa-solid fa-download" },
+        new MenuItem { Id = "delete-acc", Text = "Delete Account", NavigateUrl = "/privacy/delete", IconCssClass = "fa-solid fa-trash" },
+    };
+
+    // VN Menus
+    private List<MenuItem> GetAdminPanelMenu() => new()
+    {
+        new MenuItem { Id = "admin-dash", Text = "Dashboard", NavigateUrl = "/admin", IconCssClass = "fa-solid fa-gauge" },
+        new MenuItem { Id = "system-info", Text = "System Info", NavigateUrl = "/admin/system", IconCssClass = "fa-solid fa-circle-info" },
+        new MenuItem { Id = "database", Text = "Database", NavigateUrl = "/admin/database", IconCssClass = "fa-solid fa-database" },
+    };
+
+    private List<MenuItem> GetAuditTrailMenu() => new()
+    {
+        new MenuItem { Id = "all-activities", Text = "All Activities", NavigateUrl = "/audit", IconCssClass = "fa-solid fa-list-check" },
+        new MenuItem { Id = "user-activities", Text = "User Activities", NavigateUrl = "/audit/users", IconCssClass = "fa-solid fa-user-clock" },
+        new MenuItem { Id = "system-changes", Text = "System Changes", NavigateUrl = "/audit/system", IconCssClass = "fa-solid fa-code-commit" },
+    };
+
+    private List<MenuItem> GetConfigurationMenu() => new()
+    {
+        new MenuItem { Id = "app-config", Text = "Application", NavigateUrl = "/config/app", IconCssClass = "fa-solid fa-wrench" },
+        new MenuItem { Id = "email-config", Text = "Email", NavigateUrl = "/config/email", IconCssClass = "fa-solid fa-envelope-open-text" },
+        new MenuItem { Id = "storage-config", Text = "Storage", NavigateUrl = "/config/storage", IconCssClass = "fa-solid fa-hard-drive" },
+    };
+
+    private List<MenuItem> GetSystemSettingsMenu() => new()
+    {
+        new MenuItem { Id = "sys-general", Text = "General", NavigateUrl = "/system/general", IconCssClass = "fa-solid fa-gears" },
+        new MenuItem { Id = "maintenance", Text = "Maintenance", NavigateUrl = "/system/maintenance", IconCssClass = "fa-solid fa-screwdriver-wrench" },
+        new MenuItem { Id = "cache", Text = "Cache", NavigateUrl = "/system/cache", IconCssClass = "fa-solid fa-box-archive" },
+    };
+
+    private List<MenuItem> GetBackupMenu() => new()
+    {
+        new MenuItem { Id = "create-backup", Text = "Create Backup", NavigateUrl = "/backup/create", IconCssClass = "fa-solid fa-floppy-disk" },
+        new MenuItem { Id = "restore", Text = "Restore", NavigateUrl = "/backup/restore", IconCssClass = "fa-solid fa-rotate-left" },
+        new MenuItem { Id = "schedule", Text = "Schedule", NavigateUrl = "/backup/schedule", IconCssClass = "fa-solid fa-calendar-check" },
+    };
+
+    // Default Menu
+    private List<MenuItem> GetDefaultMenu() => new()
+    {
+        new MenuItem { Id = "home", Text = "Home", NavigateUrl = "/", IconCssClass = "dx-icon-home" },
+        new MenuItem { Id = "counter", Text = "Counter", NavigateUrl = "/counter", IconCssClass = "dx-icon-refresh" },
+        new MenuItem { Id = "weather", Text = "Weather", NavigateUrl = "/weather", IconCssClass = "dx-icon-cloud" },
+
+        new MenuItem { Id = "ai-group", Text = "AI-powered Extensions", IsGroupHeader = true, HasChildren = true },
+        new MenuItem { Id = "ai-chat", ParentId = "ai-group", Text = "AI Chat", NavigateUrl = "/ai-chat", IconCssClass = "fa-solid fa-comments", HasBadge = true },
+        new MenuItem { Id = "rich-editor", ParentId = "ai-group", Text = "Rich Text Editor", NavigateUrl = "/rich-editor", IconCssClass = "fa-solid fa-file-pen" },
+        new MenuItem { Id = "html-editor", ParentId = "ai-group", Text = "HTML Editor", NavigateUrl = "/html-editor", IconCssClass = "fa-solid fa-code" },
+        new MenuItem { Id = "memo", ParentId = "ai-group", Text = "Memo", NavigateUrl = "/memo", IconCssClass = "fa-solid fa-note-sticky", IsNew = true },
+        new MenuItem { Id = "grid-ai", ParentId = "ai-group", Text = "Grid", NavigateUrl = "/grid-ai", IconCssClass = "fa-solid fa-table" },
+        new MenuItem { Id = "reports", ParentId = "ai-group", Text = "Reports", NavigateUrl = "/reports", IconCssClass = "fa-solid fa-chart-line" },
+
+        new MenuItem { Id = "data-mgmt", Text = "Data Management", IsGroupHeader = true, HasChildren = true },
+        new MenuItem { Id = "grid-data", ParentId = "data-mgmt", Text = "Grid", NavigateUrl = "/grid", IconCssClass = "fa-solid fa-table-cells", HasBadge = true },
+        new MenuItem { Id = "treelist", ParentId = "data-mgmt", Text = "TreeList", NavigateUrl = "/treelist", IconCssClass = "fa-solid fa-sitemap", HasBadge = true },
+        new MenuItem { Id = "filter-builder", ParentId = "data-mgmt", Text = "Filter Builder", NavigateUrl = "/filter", IconCssClass = "fa-solid fa-filter", HasBadge = true },
+
+        new MenuItem { Id = "data-editors", Text = "Data Editors", IsGroupHeader = true, HasChildren = true },
+        new MenuItem { Id = "overview", ParentId = "data-editors", Text = "Overview", NavigateUrl = "/overview", IconCssClass = "fa-solid fa-circle-info" },
+        new MenuItem { Id = "common-concepts", ParentId = "data-editors", Text = "Common Concepts", NavigateUrl = "/concepts", IconCssClass = "fa-solid fa-lightbulb" },
+        new MenuItem { Id = "calendar", ParentId = "data-editors", Text = "Calendar", NavigateUrl = "/calendar", IconCssClass = "fa-solid fa-calendar" },
+        new MenuItem { Id = "checkbox", ParentId = "data-editors", Text = "CheckBox", NavigateUrl = "/checkbox", IconCssClass = "fa-solid fa-square-check" },
+        new MenuItem { Id = "color-palette", ParentId = "data-editors", Text = "Color Palette", NavigateUrl = "/colors", IconCssClass = "fa-solid fa-palette" },
+        new MenuItem { Id = "combobox", ParentId = "data-editors", Text = "ComboBox", NavigateUrl = "/combobox", IconCssClass = "fa-solid fa-list" },
+        new MenuItem { Id = "date-edit", ParentId = "data-editors", Text = "Date Edit", NavigateUrl = "/date", IconCssClass = "fa-solid fa-calendar-days" },
+        new MenuItem { Id = "date-range", ParentId = "data-editors", Text = "Date Range Picker", NavigateUrl = "/daterange", IconCssClass = "fa-solid fa-calendar-week" },
+        new MenuItem { Id = "dropdown", ParentId = "data-editors", Text = "DropDown Box", NavigateUrl = "/dropdown", IconCssClass = "fa-solid fa-caret-down" }
+    };
+
+    #endregion
 
     private void UpdateSelectedItem()
     {
@@ -183,7 +318,7 @@
             !string.IsNullOrEmpty(m.NavigateUrl) &&
             string.Equals(m.NavigateUrl, currentLocalPath, StringComparison.OrdinalIgnoreCase));
 
-        BuildBreadcrumb(SelectedItem); // ⭐ เพิ่มบรรทัดนี้
+        BuildBreadcrumb(SelectedItem);
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -225,7 +360,6 @@
     {
         BreadcrumbItems.Clear();
 
-        // ⭐ เพิ่ม Home เป็นตัวแรก
         var home = MenuItems.FirstOrDefault(x => x.Id == "home");
         if (home != null)
             BreadcrumbItems.Add(home);
@@ -248,24 +382,4 @@
             BreadcrumbItems.Add(stack.Pop());
     }
     #endregion
-
-    private string _previousSearchText = "";
-
-    // ⭐ เพิ่ม method สำหรับ highlight
-    private string HighlightText(string text)
-    {
-        if (string.IsNullOrWhiteSpace(SearchText) || string.IsNullOrWhiteSpace(text))
-            return text;
-
-        var index = text.IndexOf(SearchText, StringComparison.OrdinalIgnoreCase);
-        if (index == -1)
-            return text;
-
-        var before = text.Substring(0, index);
-        var match = text.Substring(index, SearchText.Length);
-        var after = text.Substring(index + SearchText.Length);
-
-        return $"{before}<mark class='search-highlight'>{match}</mark>{after}";
-    }
-
 }

@@ -2,6 +2,10 @@
     height: 100%;
 }
 
+::deep .dxbl-drawer > .dxbl-drawer-panel .dxbl-drawer-header {
+    overflow: visible !important;
+}
+
 .navigation-drawer-shading {
     height: 100%;
     position: absolute;

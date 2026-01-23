@@ -1,5 +1,4 @@
 ﻿@using MC.Office.Blazor.Testing.Components.Layout.Button
-@using MC.Office.Blazor.Testing.Components.Layout.ThemeSwitcher
 
 @inherits DrawerStateLayoutComponentBase
 
@@ -8,119 +7,52 @@
 <div class="demo-header-container">
     <nav class="demo-header p-0 navbar navbar-dark" aria-label="Header menu">
         <ToggleButton @bind-Toggled="@LayoutToggled" />
-        <div class="logo-image">
-            <a href="https://www.devexpress.com/" target="_blank" title="DevExpress">
-                <span class="logo-img"></span>
-            </a>
-            <div class="logo-sep"></div>
-            <a href="" target="_blank" title="Blazor Demos Home Page">
-                <span class="logo-sec-img"></span>
-            </a>
+        <div class="d-flex justify-content-center align-items-center">
+            <i class="fa-solid fa-globe fs-5 me-1" />
+            <span class="fw-bold ms-1 fs-5 text-success">@GetOrgName</span>
         </div>
         <div class="demo-btn-container">
-            <DxButton NavigateUrl="https://go.devexpress.com/DevexpressDownload_UniversalTrial.aspx"
-                      CssClass="download-btn"
-                      SizeMode="SizeMode.Large">
-                <i class="fa-solid fa-download fs-5 me-0 me-sm-0 me-md-1 me-lg-1 me-xl-1" />
-                <span class="d-none d-sm-none d-md-flex d-lg-flex d-xl-flex">Free Trial</span>
-            </DxButton>
-            <DxButton NavigateUrl="https://github.com/DevExpress/blazor"
-                      CssClass="github-btn"
-                      RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline"
-                      SizeMode="SizeMode.Large">
-                <i class="fa-brands fa-github fs-5 me-0 me-sm-0 me-md-1 me-lg-1 me-xl-1" />
-                <span class="d-none d-sm-none d-md-flex d-lg-flex d-xl-flex">GitHub</span>
-            </DxButton>
+            <OrganizeButton @bind-SelectedOrganize="@currentOrganize" />
+
+            <LanguageButton @bind-SelectedLanguage="@currentLanguage" />
+
             <div class="btn-sep"></div>
-            <DxButton Click="@ToggleThemeSwitcherPanel" CssClass="@GetThemeSwitcherCssClass()" SizeMode="SizeMode.Large"
-                      RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline" IconCssClass="fa-solid fa-palette"
-                      aria-label="Themes"
-                      aria-haspopup="True"
-                      aria-expanded="@(ThemeSwitcherShown.ToString())">
-            </DxButton>
+            <DxButton SizeMode="SizeMode.Large" CssClass="mx-2 rounded-circle p-2" RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline" IconCssClass="fa-solid fa-user"></DxButton>
         </div>
-        <ThemeSwitcher @bind-Shown="@ThemeSwitcherShown" />
     </nav>
 </div>
 
 <div class="page">
     <Drawer CssClass="navigation-drawer" PanelWidth="240px" Toggled="@LayoutToggled">
         <HeaderTemplate>
-            <div class="drawer-header">
-                <!-- Search -->
-                <div class="drawer-search d-flex align-items-center">
-                    <i class="fa-solid fa-magnifying-glass fs-6 text-secondary"></i>
-                    <DxTextBox @bind-Text="@SearchText" 
-                               @bind-Text:after="StateHasChanged"
-                               SizeMode="SizeMode.Large" 
-                               NullText="Find by Keyword" 
-                               CssClass="drawer-search-box" 
-                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
-                </div>
+            <div class="w-100 p-2">
+                <MenuBarButton SelectedOrganize="@currentOrganize"
+                               OnMenuSelected="OnMenuChanged" />
             </div>
         </HeaderTemplate>
         <BodyTemplate>
             <div class="w-100">
-                <NavMenu @ref="@NavMenuRef" SearchText="@SearchText" />
+                <NavMenu SelectedMenuCategory="@selectedMenu" />
             </div>
         </BodyTemplate>
         <TargetContent>
-            @* Breadcrum *@
-            @if (NavMenuRef?.BreadcrumbItems?.Any() == true)
-            {
-                <nav class="dx-breadcrumb">
-                    @for (int i = 0; i < NavMenuRef.BreadcrumbItems.Count; i++)
-                    {
-                        var item = NavMenuRef.BreadcrumbItems[i];
-                        var isLast = i == NavMenuRef.BreadcrumbItems.Count - 1;
-
-                        <span class="dx-breadcrumb-item @(isLast ? "active" : "")"
-                              @onclick="@(() =>
-                              {
-                                  if (!isLast)
-                                  {
-                                      NavigationManager.NavigateTo(item.NavigateUrl);
-                                  }
-                              })">
-                            @item.Text
-                        </span>
-
-                        @if (!isLast)
-                        {
-                            <span class="breadcrumb-sep">›</span>
-                        }
-                    }
-                </nav>
-            }
             <div class="drawer-content">
                 <div class="page-content-container">
                     @Body
                 </div>
             </div>
         </TargetContent>
-        <FooterTemplate>
-            <div class="navigation-drawer-footer">
-                @* <NavLink href="https://docs.devexpress.com/Blazor/400725/blazor-components" class="button-link">
-                    <DxButton Text="Docs" RenderStyle="ButtonRenderStyle.Light" RenderStyleMode="ButtonRenderStyleMode.Text" IconCssClass="icon icon-docs"></DxButton>
-                </NavLink>
-                <NavLink href="https://demos.devexpress.com/blazor/" class="button-link">
-                    <DxButton Text="Demos" RenderStyle="ButtonRenderStyle.Light" RenderStyleMode="ButtonRenderStyleMode.Text" IconCssClass="icon icon-demos"></DxButton>
-                </NavLink> *@
-            </div>
-        </FooterTemplate>
     </Drawer>
 </div>
 
 @code {
-    private string SearchText = "";
-
-    private NavMenu? NavMenuRef;
+    private string currentOrganize = "MCIC";
+    private string currentLanguage = "TH";
+    private string selectedMenu = "";
 
     string LocalPath => new Uri(NavigationManager.Uri).LocalPath;
 
     bool _layoutToggled;
-    bool _themeSwitcherShown;
-    bool _isDesktop = true;
 
     bool LayoutToggled
     {
@@ -130,35 +62,62 @@
             if (_layoutToggled != value)
             {
                 _layoutToggled = value;
-                if (!_isDesktop && _layoutToggled)
-                    ThemeSwitcherShown = false;
             }
         }
     }
 
-    bool ThemeSwitcherShown
+    protected override void OnInitialized()
     {
-        get { return _themeSwitcherShown; }
-        set
+        selectedMenu = GetFirstMenuForOrganize(currentOrganize);
+    }
+
+    private void OnOrganizeChanged(string organize)
+    {
+        currentOrganize = organize;
+        // ⭐ Reset menu เป็นหัวข้อแรกของ Organize ใหม่
+        selectedMenu = GetFirstMenuForOrganize(organize);
+        StateHasChanged();
+    }
+
+    private string GetFirstMenuForOrganize(string organize)
+    {
+        return organize switch
         {
-            if (_themeSwitcherShown != value)
-            {
-                _themeSwitcherShown = value;
-                if (!_isDesktop && _themeSwitcherShown)
-                    LayoutToggled = false;
-            }
-        }
+            "MCIC" => "User Management",  // หัวข้อแรกของ MCIC
+            "LF" => "Dashboard",          // หัวข้อแรกของ LF
+            "VLP" => "Profile",           // หัวข้อแรกของ VLP
+            "VN" => "Admin Panel",        // หัวข้อแรกของ VN
+            _ => ""
+        };
     }
 
-    void ToggleThemeSwitcherPanel()
+    private void OnMenuChanged(string menu)
     {
-        ThemeSwitcherShown = !ThemeSwitcherShown;
+        selectedMenu = menu;
+        Console.WriteLine($"Selected Menu: {menu}");
+        StateHasChanged(); // ⭐ เพิ่มบรรทัดนี้
     }
 
-    string GetThemeSwitcherCssClass()
+    private string GetDefaultMenuForOrganize(string organize)
     {
-        return "theme-btn fs-6 theme-settings " + ThemeSwitcherShown;
+        return organize switch
+        {
+            "MCIC" => "User Management",
+            "LF" => "Dashboard",
+            "VLP" => "Profile",
+            "VN" => "Admin Panel",
+            _ => "User Management"
+        };
     }
+
+    private string GetOrgName => currentOrganize switch
+    {
+        "MCIC" => "MODERN CASS",
+        "LF" => "LIFEFORD",
+        "VLP" => "VALLEY PLUS",
+        "VN" => "DCASH VIETNAM",
+        _ => "ORGANIZE"
+    };
 }
 
 

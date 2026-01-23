@@ -1,8 +1,9 @@
-﻿using MC.Office.Blazor.Testing.Components;
-
-var builder = WebApplication.CreateBuilder(args);
+﻿var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddLocalization();
+builder.Services.AddControllers();
+builder.Services.AddLocalStorageServices();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
@@ -13,6 +14,14 @@ builder.Services.AddDevExpressBlazor(options =>
 builder.Services.AddMvc();
 
 var app = builder.Build();
+
+string[] supportedCultures = ["en-US", "th-TH", "vi-VN"];
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture(supportedCultures[0])
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+
+app.UseRequestLocalization(localizationOptions);
 
 if (!app.Environment.IsDevelopment())
 {
@@ -25,8 +34,9 @@ app.UseHttpsRedirection();
 
 app.UseAntiforgery();
 
+app.MapControllers();
 app.MapStaticAssets();
-app.MapRazorComponents<App>()
+app.MapRazorComponents<MC.Office.Blazor.Testing.Components.App>()
     .AddInteractiveServerRenderMode()
     .AllowAnonymous();
 
