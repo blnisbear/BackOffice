@@ -1,4 +1,4 @@
-::deep .menu {
+﻿::deep .menu {
     --dxbl-menu-bottom-left-border-radius: 0;
     --dxbl-menu-bottom-right-border-radius: 0;
     --dxbl-menu-top-left-border-radius: 0;
@@ -256,3 +256,7 @@
     .menu-treeview::-webkit-scrollbar-thumb:hover {
         background: rgba(255, 255, 255, 0.3);
     }
+
+.menu-node-content i:not(.fa-folder):not(.fa-folder-open) {
+    margin-left: 0.25rem;
+}

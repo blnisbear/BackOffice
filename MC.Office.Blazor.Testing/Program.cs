@@ -13,6 +13,8 @@ builder.Services.AddDevExpressBlazor(options =>
 });
 builder.Services.AddMvc();
 
+builder.Services.AddScoped<MC.Office.Blazor.Testing.Components.Layout.MockData.NavMenu.MenuDataService>();
+
 var app = builder.Build();
 
 string[] supportedCultures = ["en-US", "th-TH", "vi-VN"];

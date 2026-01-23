@@ -72,3 +72,10 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
+
+.org-logo {
+    height: 32px; /* กำหนดความสูงเท่ากัน */
+    width: auto; /* กว้างปรับตามสัดส่วน */
+    max-width: 120px; /* กันโลโก้ยาวเกิน */
+    object-fit: contain; /* รักษาสัดส่วน */
+}
