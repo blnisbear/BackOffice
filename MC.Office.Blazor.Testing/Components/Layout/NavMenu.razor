@@ -30,6 +30,7 @@
                         @if (item.HasChildren)
                         {
                             <i class="expand-icon fa-solid fa-chevron-right @(isExpanded ? "expanded" : "")"></i>
+                            <i class="fa-solid fa-folder@(isExpanded ? "-open" : "") menu-icon"></i>
                         }
                         <span>@item.Text</span>
                     </div>
@@ -59,12 +60,12 @@
 
 @code {
     [Parameter] public string SelectedMenuCategory { get; set; } = "";
-    
+
     string SearchText { get; set; } = "";
 
     private MenuItem? SelectedItem;
     private string? currentLocalPath;
-    
+
     private List<MenuItem> MenuItems = new();
     private IEnumerable<object>? ExpandedItems;
 
@@ -85,17 +86,14 @@
         NavigationManager.LocationChanged += OnLocationChanged;
     }
 
-    // ⭐ เพิ่ม method นี้
     protected override void OnParametersSet()
     {
         InitializeMenuItems();
         StateHasChanged();
     }
 
-    // ⭐ แก้ไข method นี้
     private void InitializeMenuItems()
     {
-        // เลือกชุดข้อมูลตาม SelectedMenuCategory
         MenuItems = SelectedMenuCategory switch
         {
             "User Management" => GetUserManagementMenu(),
@@ -103,30 +101,30 @@
             "Permissions" => GetPermissionsMenu(),
             "Roles" => GetRolesMenu(),
             "Access Control" => GetAccessControlMenu(),
-            
+
             "Dashboard" => GetDashboardMenu(),
             "Reports" => GetReportsMenu(),
             "Analytics" => GetAnalyticsMenu(),
             "Logs" => GetLogsMenu(),
             "Monitoring" => GetMonitoringMenu(),
-            
+
             "Profile" => GetProfileMenu(),
             "Notifications" => GetNotificationsMenu(),
             "Preferences" => GetPreferencesMenu(),
             "Security" => GetSecurityMenu(),
             "Privacy" => GetPrivacyMenu(),
-            
+
             "Admin Panel" => GetAdminPanelMenu(),
             "Audit Trail" => GetAuditTrailMenu(),
             "Configuration" => GetConfigurationMenu(),
             "System Settings" => GetSystemSettingsMenu(),
             "Backup" => GetBackupMenu(),
-            
+
             _ => GetDefaultMenu()
         };
     }
 
-    #region ⭐ เพิ่ม MockUp Data Methods
+    #region MockUp Data Methods
 
     // MCIC Menus
     private List<MenuItem> GetUserManagementMenu() => new()
@@ -134,9 +132,15 @@
         new MenuItem { Id = "users", Text = "All Users", NavigateUrl = "/users", IconCssClass = "fa-solid fa-users" },
         new MenuItem { Id = "add-user", Text = "Add User", NavigateUrl = "/users/add", IconCssClass = "fa-solid fa-user-plus", IsNew = true },
         new MenuItem { Id = "user-groups", Text = "User Groups", NavigateUrl = "/users/groups", IconCssClass = "fa-solid fa-user-group" },
+
+        // 3 Levels
         new MenuItem { Id = "import-export", Text = "Import/Export", IsGroupHeader = true, HasChildren = true },
         new MenuItem { Id = "import", ParentId = "import-export", Text = "Import Users", NavigateUrl = "/users/import", IconCssClass = "fa-solid fa-file-import" },
         new MenuItem { Id = "export", ParentId = "import-export", Text = "Export Users", NavigateUrl = "/users/export", IconCssClass = "fa-solid fa-file-export" },
+        new MenuItem { Id = "advanced", ParentId = "import-export", Text = "Advanced", IsGroupHeader = true, HasChildren = true },
+        new MenuItem { Id = "bulk-import", ParentId = "advanced", Text = "Bulk Import", NavigateUrl = "/users/import/bulk", IconCssClass = "fa-solid fa-users-gear" },
+        new MenuItem { Id = "csv-import", ParentId = "advanced", Text = "CSV Import", NavigateUrl = "/users/import/csv", IconCssClass = "fa-solid fa-file-csv" },
+        new MenuItem { Id = "template", ParentId = "advanced", Text = "Download Template", NavigateUrl = "/users/import/template", IconCssClass = "fa-solid fa-download" },
     };
 
     private List<MenuItem> GetSettingsMenu() => new()
@@ -144,7 +148,15 @@
         new MenuItem { Id = "general", Text = "General", NavigateUrl = "/settings/general", IconCssClass = "fa-solid fa-gear" },
         new MenuItem { Id = "appearance", Text = "Appearance", NavigateUrl = "/settings/appearance", IconCssClass = "fa-solid fa-palette" },
         new MenuItem { Id = "notifications-set", Text = "Notifications", NavigateUrl = "/settings/notifications", IconCssClass = "fa-solid fa-bell", HasBadge = true },
-        new MenuItem { Id = "integrations", Text = "Integrations", NavigateUrl = "/settings/integrations", IconCssClass = "fa-solid fa-plug" },
+
+        // 3 Levels
+        new MenuItem { Id = "integrations", Text = "Integrations", IsGroupHeader = true, HasChildren = true },
+        new MenuItem { Id = "social", ParentId = "integrations", Text = "Social Media", IsGroupHeader = true, HasChildren = true },
+        new MenuItem { Id = "facebook", ParentId = "social", Text = "Facebook", NavigateUrl = "/settings/integrations/facebook", IconCssClass = "fa-brands fa-facebook" },
+        new MenuItem { Id = "twitter", ParentId = "social", Text = "Twitter", NavigateUrl = "/settings/integrations/twitter", IconCssClass = "fa-brands fa-twitter" },
+        new MenuItem { Id = "linkedin", ParentId = "social", Text = "LinkedIn", NavigateUrl = "/settings/integrations/linkedin", IconCssClass = "fa-brands fa-linkedin" },
+        new MenuItem { Id = "api", ParentId = "integrations", Text = "API", NavigateUrl = "/settings/integrations/api", IconCssClass = "fa-solid fa-plug" },
+        new MenuItem { Id = "webhooks", ParentId = "integrations", Text = "Webhooks", NavigateUrl = "/settings/integrations/webhooks", IconCssClass = "fa-solid fa-webhook" },
     };
 
     private List<MenuItem> GetPermissionsMenu() => new()
@@ -180,7 +192,15 @@
     {
         new MenuItem { Id = "sales-report", Text = "Sales Reports", NavigateUrl = "/reports/sales", IconCssClass = "fa-solid fa-file-invoice-dollar" },
         new MenuItem { Id = "user-report", Text = "User Reports", NavigateUrl = "/reports/users", IconCssClass = "fa-solid fa-file-lines" },
-        new MenuItem { Id = "custom-report", Text = "Custom Reports", NavigateUrl = "/reports/custom", IconCssClass = "fa-solid fa-file-circle-plus", IsNew = true },
+
+        // 3 Levels
+        new MenuItem { Id = "custom-report", Text = "Custom Reports", IsGroupHeader = true, HasChildren = true },
+        new MenuItem { Id = "templates", ParentId = "custom-report", Text = "Templates", IsGroupHeader = true, HasChildren = true },
+        new MenuItem { Id = "monthly", ParentId = "templates", Text = "Monthly Template", NavigateUrl = "/reports/custom/monthly", IconCssClass = "fa-solid fa-calendar-days" },
+        new MenuItem { Id = "quarterly", ParentId = "templates", Text = "Quarterly Template", NavigateUrl = "/reports/custom/quarterly", IconCssClass = "fa-solid fa-calendar" },
+        new MenuItem { Id = "annual", ParentId = "templates", Text = "Annual Template", NavigateUrl = "/reports/custom/annual", IconCssClass = "fa-solid fa-calendar-check" },
+        new MenuItem { Id = "builder", ParentId = "custom-report", Text = "Report Builder", NavigateUrl = "/reports/custom/builder", IconCssClass = "fa-solid fa-file-circle-plus", IsNew = true },
+        new MenuItem { Id = "saved", ParentId = "custom-report", Text = "Saved Reports", NavigateUrl = "/reports/custom/saved", IconCssClass = "fa-solid fa-bookmark" },
     };
 
     private List<MenuItem> GetAnalyticsMenu() => new()
@@ -245,7 +265,15 @@
     {
         new MenuItem { Id = "admin-dash", Text = "Dashboard", NavigateUrl = "/admin", IconCssClass = "fa-solid fa-gauge" },
         new MenuItem { Id = "system-info", Text = "System Info", NavigateUrl = "/admin/system", IconCssClass = "fa-solid fa-circle-info" },
-        new MenuItem { Id = "database", Text = "Database", NavigateUrl = "/admin/database", IconCssClass = "fa-solid fa-database" },
+
+        // 3 Levels
+        new MenuItem { Id = "database", Text = "Database", IsGroupHeader = true, HasChildren = true },
+        new MenuItem { Id = "db-tables", ParentId = "database", Text = "Tables", NavigateUrl = "/admin/database/tables", IconCssClass = "fa-solid fa-table-list" },
+        new MenuItem { Id = "maintenance-db", ParentId = "database", Text = "Maintenance", IsGroupHeader = true, HasChildren = true },
+        new MenuItem { Id = "optimize", ParentId = "maintenance-db", Text = "Optimize", NavigateUrl = "/admin/database/optimize", IconCssClass = "fa-solid fa-gauge-high" },
+        new MenuItem { Id = "repair", ParentId = "maintenance-db", Text = "Repair", NavigateUrl = "/admin/database/repair", IconCssClass = "fa-solid fa-wrench" },
+        new MenuItem { Id = "vacuum", ParentId = "maintenance-db", Text = "Vacuum", NavigateUrl = "/admin/database/vacuum", IconCssClass = "fa-solid fa-broom" },
+        new MenuItem { Id = "db-backup", ParentId = "database", Text = "Backup", NavigateUrl = "/admin/database/backup", IconCssClass = "fa-solid fa-database" },
     };
 
     private List<MenuItem> GetAuditTrailMenu() => new()
@@ -258,7 +286,16 @@
     private List<MenuItem> GetConfigurationMenu() => new()
     {
         new MenuItem { Id = "app-config", Text = "Application", NavigateUrl = "/config/app", IconCssClass = "fa-solid fa-wrench" },
-        new MenuItem { Id = "email-config", Text = "Email", NavigateUrl = "/config/email", IconCssClass = "fa-solid fa-envelope-open-text" },
+
+        // 3 Levels
+        new MenuItem { Id = "email-config", Text = "Email", IsGroupHeader = true, HasChildren = true },
+        new MenuItem { Id = "smtp", ParentId = "email-config", Text = "SMTP Settings", NavigateUrl = "/config/email/smtp", IconCssClass = "fa-solid fa-server" },
+        new MenuItem { Id = "templates-email", ParentId = "email-config", Text = "Templates", IsGroupHeader = true, HasChildren = true },
+        new MenuItem { Id = "welcome", ParentId = "templates-email", Text = "Welcome Email", NavigateUrl = "/config/email/templates/welcome", IconCssClass = "fa-solid fa-hand-wave" },
+        new MenuItem { Id = "reset-password", ParentId = "templates-email", Text = "Reset Password", NavigateUrl = "/config/email/templates/reset", IconCssClass = "fa-solid fa-key" },
+        new MenuItem { Id = "notification", ParentId = "templates-email", Text = "Notification", NavigateUrl = "/config/email/templates/notification", IconCssClass = "fa-solid fa-bell" },
+        new MenuItem { Id = "queue", ParentId = "email-config", Text = "Queue Settings", NavigateUrl = "/config/email/queue", IconCssClass = "fa-solid fa-list-ol" },
+
         new MenuItem { Id = "storage-config", Text = "Storage", NavigateUrl = "/config/storage", IconCssClass = "fa-solid fa-hard-drive" },
     };
 
@@ -291,10 +328,15 @@
         new MenuItem { Id = "grid-ai", ParentId = "ai-group", Text = "Grid", NavigateUrl = "/grid-ai", IconCssClass = "fa-solid fa-table" },
         new MenuItem { Id = "reports", ParentId = "ai-group", Text = "Reports", NavigateUrl = "/reports", IconCssClass = "fa-solid fa-chart-line" },
 
+        // 3 Levels
         new MenuItem { Id = "data-mgmt", Text = "Data Management", IsGroupHeader = true, HasChildren = true },
         new MenuItem { Id = "grid-data", ParentId = "data-mgmt", Text = "Grid", NavigateUrl = "/grid", IconCssClass = "fa-solid fa-table-cells", HasBadge = true },
         new MenuItem { Id = "treelist", ParentId = "data-mgmt", Text = "TreeList", NavigateUrl = "/treelist", IconCssClass = "fa-solid fa-sitemap", HasBadge = true },
         new MenuItem { Id = "filter-builder", ParentId = "data-mgmt", Text = "Filter Builder", NavigateUrl = "/filter", IconCssClass = "fa-solid fa-filter", HasBadge = true },
+        new MenuItem { Id = "advanced-data", ParentId = "data-mgmt", Text = "Advanced", IsGroupHeader = true, HasChildren = true },
+        new MenuItem { Id = "pivot", ParentId = "advanced-data", Text = "Pivot Grid", NavigateUrl = "/pivot", IconCssClass = "fa-solid fa-table-pivot" },
+        new MenuItem { Id = "scheduler", ParentId = "advanced-data", Text = "Scheduler", NavigateUrl = "/scheduler", IconCssClass = "fa-solid fa-calendar-days" },
+        new MenuItem { Id = "gantt", ParentId = "advanced-data", Text = "Gantt Chart", NavigateUrl = "/gantt", IconCssClass = "fa-solid fa-chart-gantt" },
 
         new MenuItem { Id = "data-editors", Text = "Data Editors", IsGroupHeader = true, HasChildren = true },
         new MenuItem { Id = "overview", ParentId = "data-editors", Text = "Overview", NavigateUrl = "/overview", IconCssClass = "fa-solid fa-circle-info" },
